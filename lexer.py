@@ -2,6 +2,7 @@ from lexerfuncs import *
 
 # Variables 
 tokens = []											# List of Tokens, will be appended through line tokenizer 
+sourceLines = []									# List of Lines
 
 if len(sys.argv) < 2:								# No file called, Print Error and Exit 
 	print("Error - No File Called ")
@@ -13,12 +14,21 @@ with open(sys.argv[1]) as f:						# Read the file
 sourceLines = re.split("\n",sourceLines)			# split into list per newline
 sourceLines = handleComments(sourceLines)			# Remove Comments here 
 
-for line in sourceLines:							# Tokenize each line
-	lineTokenizer(line,tokens)
+if sourceLines[0] != "HAI" : print("Invalid start of program")
+if sourceLines[-1] != "KTHXBYE" : print("Invalid end of program")
 
+# ADD FUNCTION FOR CHECKING IF THEIR IS AN INVALID CHARACTER IN THE WHOLE PROGRAM
+
+for line in sourceLines:
+	print("- ",line)
+
+tokenizer(sourceLines,tokens)							# Tokenize each line	
 
 for token in tokens:
 	print(token,"\n")
+
+
+
 
 
 '''
