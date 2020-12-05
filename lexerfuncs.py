@@ -33,23 +33,48 @@ omgwtf = r"^OMGWTF$"
 
 varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*"
 strIdentifier = r"\".+\""
-
-
-# List of regex patterns to match with
-patterns = [hai,kthxbye,ihasa,visible]
-
+numIdentifier = r"[0-9]+"
+floatIdentifier = r"^-?[0-9]+.[0-9]+$"
+troofIdentifier = r"^WIN$|^FAIL$"
 
 def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
 	if re.match(varIdentifier,var):
 		return True
 	else: return False
 
-def isString(word):
-	print(word)
-	if re.match(strIdentifier,word):
+def isString(val):
+	if re.match(strIdentifier,val):
 		return True
 	else:
 		return False
+
+def isNumber(val):
+	if re.match(numIdentifier,val):
+		return True
+	else:
+		return False
+
+def isFloat(val):
+	if re.match(floatIdentifier,val):
+		return True
+	else : 
+		return False
+
+def isTroof(val):
+	if re.match(troofIdentifier,val):
+		return
+	else: 
+		return False
+
+
+def isLiteral(value):	# Checks for the type of the value, returns a string of its type
+
+	if isString(value): return "String Literal"
+	elif isNumber(value): return "Integer Literal"
+	elif isFloat(value): return "Float Literal"
+	elif isTroof(value): return "Troof Literal"
+	else : return False
+
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -77,49 +102,70 @@ def tokenizer(sourceLines,tokens):
 	for line in sourceLines:	# tokenize every line in the sourceLines 
 
 		thisLine = line.split()		# List form of the line 
+		lineTokens = []
 		
 		if re.match(hai,line):											# Start
-			tokens.append(('Program Delimiter',line))
+			lineTokens.append(('Program Delimiter',line))
 
 		elif re.match(kthxbye,line):								    # End
-			tokens.append(('Program Delimiter',line))
+			lineTokens.append(('Program Delimiter',line))
 
 		elif re.match(ihasa,line):			# Variable Declaration 
-			tokens.append(('Variable Declaration','I HAS A'))
+			lineTokens.append(('Variable Declaration','I HAS A'))
 			varName = ''
 			varDeclaration = True
 			
 			if (len(thisLine) == 4 or len(thisLine) == 6) and isVariable(thisLine[3]):			# Variable Declaration with no initialization
 				varName = thisLine[3]
-				tokens.append(('Variable Identifier',varName))
+				lineTokens.append(('Variable Identifier',varName))
 			if len(thisLine) == 6 and re.match(r"ITZ",thisLine[4]):								# Variable Declaration with no initialization
-				tokens.append(('Variable Assignment',thisLine[4]))
+				lineTokens.append(('Variable Assignment',thisLine[4]))
 				
-				# Change to call to function to verify literal type -------------------------------------------------------------
-				tokens.append(('Literal Value',thisLine[5]))		
+				if isLiteral(thisLine[5]) != False:
+					literalType = isLiteral(thisLine[5])
+					lineTokens.append((literalType,thisLine[5]))	
+				else : 
+					print("Probably a Variable")
+
 				# ===============================================================================================================
 			else: print("Error in Lexer - Variable Declaration")
 
 
-		elif re.match(gimmeh,line):									# If it is an input Statement 
-			tokens.append(('Input KeyWord',thisLine[0]))					# Gimmeh tokenized as keyword
+		elif re.match(gimmeh,line):											# If it is an input Statement 
+			lineTokens.append(('Input KeyWord',thisLine[0]))					# Gimmeh tokenized as keyword
 			if isVariable(thisLine[1]):
-				tokens.append(('Variable Identfier',thisLine[1]))	# IF variable passes, tokenized as variable identifier 
+				lineTokens.append(('Variable Identfier',thisLine[1]))	# IF variable passes, tokenized as variable identifier 
 	
 		elif re.match(visible,line) :								# If it is a print statement 
 	
-			tokens.append(('Print Keyword',thisLine[0]))
+			lineTokens.append(('Print Keyword',thisLine[0]))
 			string = str(line).replace("VISIBLE","")			# remove visible
 			strcopy = string									# get a copy string
 			string = str(string).replace(" ","")				# remove spaces to check if it is a string
 
 			if isVariable(thisLine[1]): 
-				tokens.append(('Variable Identfier',thisLine[1]))
+				lineTokens.append(('Variable Identfier',thisLine[1]))
 
 			elif isString(string):	# If this is add as a String Literal Token
-				tokens.append(('String Literal',strcopy))
+				lineTokens.append(('String Literal',strcopy))
 
-		e;of 
+		elif re.match(r,line):									# If assignment Statement
+			
+			if isVariable(thisLine[0]):
+				lineTokens.append(('Variable Identifier',thisLine[0]))
+
+			if thisLine[1] == "R": lineTokens.append(('Assignment Keyword',thisLine[1]))
+
+			if isLiteral(thisLine[2]) != False:
+				literalType = isLiteral(thisLine[2])
+				lineTokens.append((literalType,thisLine[2]))
+
+		## End
+		tokens.append(lineTokens)
+
+
+
+		
 
 			
 
