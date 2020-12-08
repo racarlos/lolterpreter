@@ -6,10 +6,11 @@ import sys
 
 hai = r"^HAI$"						# Done 
 kthxbye = r"^KTHXBYE$"
-ihasa = r"I HAS A .+"
-r = r".* R .*"
-gimmeh = r"^GIMMEH .+"
-visible = r"^VISIBLE .+"
+ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]+)"
+ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]+) (ITZ) (.+)"
+gimmeh = r"(\s*)(GIMMEH) ([a-zA-Z][a-zA-Z0-9_]+)"
+r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]+) (?P<kw>R) (?P<val>.+)"
+visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
 
 sumof = r"^SUM OF .+"				# Osie Half
 diffof = r"^DIFF OF .+"
@@ -31,7 +32,7 @@ omg = r"^OMG .+"
 omgwtf = r"^OMGWTF$"
 
 
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*"
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+"
 strIdentifier = r"\".+\""
 numIdentifier = r"[0-9]+"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
@@ -110,55 +111,77 @@ def tokenizer(sourceLines,tokens):
 		elif re.match(kthxbye,line):								    # End
 			lineTokens.append(('Program Delimiter',line))
 
-		elif re.match(ihasa,line):			# Variable Declaration 
-			lineTokens.append(('Variable Declaration','I HAS A'))
-			varName = ''
-			varDeclaration = True
+		elif re.match(ihasa,line):										# Variable Declaration 
+
+			lineTokens.append(('Declaration Keyword','I HAS A'))
 			
-			if (len(thisLine) == 4 or len(thisLine) == 6) and isVariable(thisLine[3]):			# Variable Declaration with no initialization
-				varName = thisLine[3]
-				lineTokens.append(('Variable Identifier',varName))
-			if len(thisLine) == 6 and re.match(r"ITZ",thisLine[4]):								# Variable Declaration with no initialization
-				lineTokens.append(('Variable Assignment',thisLine[4]))
+			if (len(thisLine) == 4) and isVariable(thisLine[3]):					# Variable Declaration with no initialization
+				lineTokens.append(('Variable Identifier',thisLine[3]))
+
+			elif re.match(ihasitz,line):											# Variable Declaration with initialization
 				
-				if isLiteral(thisLine[5]) != False:
-					literalType = isLiteral(thisLine[5])
-					lineTokens.append((literalType,thisLine[5]))	
-				else : 
-					print("Probably a Variable")
+				m = re.match(ihasitz,line).groups()
+				lineTokens.append(('Variable Identifier',m[2]))
+				lineTokens.append(("Assigment KeyWord",m[3]))
+				if isLiteral(m[4]) != False:										# m[2] is the variable , m[3] = ITZ, m[4] is the value 
+					literalType = isLiteral(m[4])
+					lineTokens.append((literalType,m[4]))	
+				elif isVariable(m[4]) == True: 
+					print("This a Variable")
+					lineTokens.append(("Assign to Variable",m[4]))	
+				else:
+					print("Error at Ihasa: ",sourceLines.index(line))
+					
+			else: 
+				print("Error in Lexer - Variable Declaration")
+				exit(1)
 
-				# ===============================================================================================================
-			else: print("Error in Lexer - Variable Declaration")
-
-
-		elif re.match(gimmeh,line):											# If it is an input Statement 
-			lineTokens.append(('Input KeyWord',thisLine[0]))					# Gimmeh tokenized as keyword
-			if isVariable(thisLine[1]):
-				lineTokens.append(('Variable Identfier',thisLine[1]))	# IF variable passes, tokenized as variable identifier 
-	
-		elif re.match(visible,line) :								# If it is a print statement 
-	
-			lineTokens.append(('Print Keyword',thisLine[0]))
-			string = str(line).replace("VISIBLE","")			# remove visible
-			strcopy = string									# get a copy string
-			string = str(string).replace(" ","")				# remove spaces to check if it is a string
-
-			if isVariable(thisLine[1]): 
-				lineTokens.append(('Variable Identfier',thisLine[1]))
-
-			elif isString(string):	# If this is add as a String Literal Token
-				lineTokens.append(('String Literal',strcopy))
+		elif re.match(gimmeh,line):												# If it is an input Statement 
+			m = re.match(gimmeh,line).groups()
+			lineTokens.append(('Input KeyWord',m[1]))							# Gimmeh tokenized as keyword
+			
+			if isVariable(m[2]):
+				lineTokens.append(('Variable Identfier',m[2]))					# IF variable passes, tokenized as variable identifier 
+			else:
+				print("Error at Gimmeh: ",sourceLines.index(line))
 
 		elif re.match(r,line):									# If assignment Statement
+
+			m = re.match(r,line)
+			var = m.group('var')
+			kw = m.group('kw')
+			val = m.group('val')
+
+			if isVariable(var): lineTokens.append(('Variable Identifier',var))
+
+			if kw == "R": lineTokens.append(('Assignment Keyword', kw))
+
+			if isLiteral(var) != False:
+				literalType = isLiteral(var)
+				lineTokens.append((literalType,var))
+			else:
+				print("Error at R: ",sourceLines.index(line))
+		
+		elif re.match(visible,line) :											# If it is a print statement 
 			
-			if isVariable(thisLine[0]):
-				lineTokens.append(('Variable Identifier',thisLine[0]))
+			m = re.match(visible, line)
+			kw = m.group('kw')
+			expr = m.group('expr')
 
-			if thisLine[1] == "R": lineTokens.append(('Assignment Keyword',thisLine[1]))
+			lineTokens.append(('Print Keyword',kw))
 
-			if isLiteral(thisLine[2]) != False:
-				literalType = isLiteral(thisLine[2])
-				lineTokens.append((literalType,thisLine[2]))
+
+			if isVariable(expr): 
+				lineTokens.append(('Variable Identfier',expr))
+			elif isString(expr): 
+				lineTokens.append(('String Literal',expr))
+			elif expr != "" :
+				lineTokens.append(('Possible Expression',expr))
+			else :
+				print("Error at Visible: ",sourceLines.index(line))
+		
+		elif re.match(visible,line) :	
+
 
 		## End
 		tokens.append(lineTokens)
