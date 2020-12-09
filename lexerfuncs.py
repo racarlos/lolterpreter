@@ -1,4 +1,4 @@
-from helperFuncs import 
+from helperFuncs import *
 import re               # For Regex Matching 
 import os
 import sys
@@ -13,33 +13,44 @@ gimmeh = r"(\s*)(GIMMEH) ([a-zA-Z][a-zA-Z0-9_]+)"
 r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]+) (?P<kw>R) (?P<val>.+)"
 visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
 
-sumofL = r"(\s*)(?P<kw>SUM OF) (?P<op1>.+) (AN) ((?P<op2>.+))"			
-sumofB = r"(\s*)(SUM OF) (SUM OF? .+) (AN) (SUM OF? .+) (\s*)"  
+sumof = r"(\s*)(?P<kw>SUM OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# Arithmetic Expressions 
+diffof = r"^(\s*)(?P<kw>DIFF OF) (?P<op1>.+) (AN) (?P<op2>.+)"
+produktof = r"^(\s*)(?P<kw>PRODUKT OF) (?P<op1>.+) (AN) (?P<op2>.+)"
+quoshuntof = r"^(\s*)(?P<kw>QUOSHUNT OF) (?P<op1>.+) (AN) (?P<op2>.+)"
+modof = r"^(\s*)(?P<kw>MOD OF) (?P<op1>.+) (AN) (?P<op2>.+)"
 
+# Comparison Expressions
+biggrof = r"^(\s*)(?P<kw>BIGGR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# > Operator, returns the bigger number
+smallrof = r"^(\s*)(?P<kw>SMALLR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# < Operator, returns the smaller number 
+bothsaem = r"^(\s*)(?P<kw>BOTH SAEM) (?P<op1>.+) (AN) (?P<op2>.+)"	# == Operator
+diffrint = r"^(\s*)(?P<kw>DIFFRINT) (?P<op1>.+) (AN) (?P<op2>.+)"		# != Operator 
 
-diffof = r"^DIFF OF .+"
-produktof = r"^PRODUKT OF .+"
-quoshuntof = r"^QUOSHUNT OF .+"
-modof = r"^MOD OF .+"
-biggrof = r"^BIGGR OF .+"
-smallrof = r"^SMALLR OF .+"
-bothof = r"^BOTH OF .+" 
+# Logical Expressions 
+notop = r"^NOT .+"				# NOT 
+bothof = r"^BOTH OF .+" 		# AND
+eitherof = r"^EITHER OF .+" 	# OR
+wonof = r"^WON OF .+"			# XOR
+anyof = r"^ANY OF .+"			# Will take infinite arguments and apply AND
+allof = r"^ALL OF .+"			# Will take infinite arguments and apply OR
 
-eitherof = r"^EITHER OF .+" 	
-wonof = r"^WON OF .+"
-anyof = r"^ANY OF .+"
-allof = r"^ALL OF .+"
-bothsaem = r"^BOTH SAEM .+"
-diffrint = r"^DIFFRINT .+"
 wtf = r"^WTF\?$"
 omg = r"^OMG .+"
 omgwtf = r"^OMGWTF$"
 
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"	# Patterns for Literals 
 strIdentifier = r"^\".+\"$"
 numIdentifier = r"^[0-9]+$"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"
+
+
+arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF"]
+compOpsList = ["BOTHOF","EITHEROF","NOT","EITHEROF","WONOF",]
+logicOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
+
+# Global Lists
+varDict = {} 
+
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -61,9 +72,10 @@ def handleComments(sourceLines):					                        # Skips the comment
 	return newSourceLines
 
 def tokenizer(sourceLines,tokens):
+	lineNumber = 0
 
 	for line in sourceLines:	# tokenize every line in the sourceLines 
-
+		lineNumber += 1				# Incremen Line Number
 		thisLine = line.split()		# List form of the line 
 		lineTokens = []
 		
@@ -79,18 +91,26 @@ def tokenizer(sourceLines,tokens):
 			
 			if (len(thisLine) == 4) and isVariable(thisLine[3]):					# Variable Declaration with no initialization
 				lineTokens.append(('Variable Identifier',thisLine[3]))
-
+				varName = thisLine[3]
+		
+				varDict[varName] = [None,None]							# Add to variable dictionary with unknown type and unknown value 
+			
 			elif re.match(ihasitz,line):											# Variable Declaration with initialization
 				
 				m = re.match(ihasitz,line).groups()
 				lineTokens.append(('Variable Identifier',m[2]))
 				lineTokens.append(("Assigment KeyWord",m[3]))
 
-				if isLiteral(m[4]) != False:										# m[2] is the variable , m[3] = ITZ, m[4] is the value 
-					literalType = isLiteral(m[4])
-					lineTokens.append((literalType,m[4]))	
+				if getVarType(m[4]) != False:										# m[2] is the variable , m[3] = ITZ, m[4] is the value 
+					varType = getVarType(m[4])
+					lineTokens.append((varType,m[4]))	
+
+					varDict[m[2]] = [varType,m[4]]
+
 				elif isVariable(m[4]) == True: 
 					print("This a Variable")
+
+					## Evaluate Variable Value 
 					lineTokens.append(("Assign to Variable",m[4]))	
 				elif m[4] != "":
 					lineTokens.append(("Possible Expression",m[4]))	
@@ -98,7 +118,7 @@ def tokenizer(sourceLines,tokens):
 					print("Error at Ihasa: ",sourceLines.index(line))
 					
 			else: 
-				print("Error in Lexer - Variable Declaration")
+				print("Line:",lineNumber,"Error in Lexer - Variable Declaration")
 				exit(1)
 
 		elif re.match(gimmeh,line):												# If it is an input Statement 
@@ -108,9 +128,9 @@ def tokenizer(sourceLines,tokens):
 			if isVariable(m[2]):
 				lineTokens.append(('Variable Identfier',m[2]))					# IF variable passes, tokenized as variable identifier 
 			else:
-				print("Error at Gimmeh: ",sourceLines.index(line))
-
-		elif re.match(r,line):									# If assignment Statement
+				print("Line: ",lineNumber," Error at Gimmeh")
+				exit(1)
+		elif re.match(r,line):													# If assignment Statement
 
 			m = re.match(r,line)
 			var = m.group('var')
@@ -146,71 +166,16 @@ def tokenizer(sourceLines,tokens):
 				print("Error at Visible: ",sourceLines.index(line))
 		
 		elif re.match(sumof,line):												# Arithmetic Addition Statement 
-			
+			pass
+		
+		elif re.match(diffof,line):
+			pass
+
+		elif re.match(produktof,line):
+			pass
+		elif re.match(quoshuntof,line):
+			pass
+
 
 		## End
 		tokens.append(lineTokens)
-
-
-
-		
-
-			
-
-
-
-
-
-
-
-
-# def tokenizer(sourceLines,tokens):						# Handles tokens per line
-# 	i = 0
-# 	currentToken = ''
-# 	endString = False
-# 	varDeclaration = False
-
-# 	while i<len(line):													# Iterates per character through the whole line 
-# 		currentToken += line[i]											# Per character building of the token
-
-# 		if re.match(hai,line):											# Start
-# 			tokens.append(('Program Delimiter',line))
-# 			break
-# 		elif re.match(kthxbye,line):								    # End
-# 			tokens.append(('Program Delimiter',line))
-# 			break
-# 		elif re.match(ihasa,line) and varDeclaration == False:			# Variable Declaration 
-# 			tokens.append(('Variable Declaration','I HAS A'))
-# 			varName = ''
-# 			varDeclaration = True
-			
-# 			thisLine = line.split()
-# 			print(thisLine)
-		
-# 			if (len(thisLine) == 4 or len(thisLine) == 6) and re.match(varIdentifier,thisLine[3]):	# Variable Declaration with no initialization
-# 				varName = thisLine[3]
-# 				tokens.append(('Variable Identifier',varName))
-# 			if len(thisLine) == 6 and re.match(r"ITZ",thisLine[4]):		# Variable Declaration with no initialization
-# 				tokens.append(('Variable Assignment',thisLine[4]))
-				
-# 				# Change to call to function to verify literal type -------------------------------------------------------------
-# 				tokens.append(('Literal Value',thisLine[5]))		
-# 				# ===============================================================================================================
-# 			else: print("Error in Lexer - Variable Declaration")
-# 			break	
-
-# 		elif re.match(gimmeh,line):									# If it is an input Statement 
-# 			thisLine = line.split()
-# 			tokens.append(('KeyWord',thisLine[0]))					# Gimmeh tokenized as keyword
-# 			if isVariable(thisLine[1]):
-# 				tokens.append(('Variable Identfier',thisLine[1]))	# IF variable passes, tokenized as variable identifier 
-# 			break
-
-# 		elif re.match(visible,line) :								# If it is a print statement 
-
-# 		#variable
-# 		#numbr
-# 		#numbar
-# 		#bool
-
-# 		i+=1		

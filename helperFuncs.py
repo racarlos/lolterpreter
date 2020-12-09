@@ -1,3 +1,10 @@
+import re
+
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"	# Patterns for Literals 
+strIdentifier = r"^\".+\"$"
+numIdentifier = r"^[0-9]+$"
+floatIdentifier = r"^-?[0-9]+.[0-9]+$"
+troofIdentifier = r"^WIN$|^FAIL$"
 
 def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
 	if re.match(varIdentifier,var):
@@ -27,6 +34,13 @@ def isTroof(val):
 		return
 	else: 
 		return False
+
+def getVarType(value):
+	if isString(value): return "String"
+	elif isNumber(value): return "Integer"
+	elif isFloat(value): return "Float"
+	elif isTroof(value): return "Troof"
+	else : return False	
 
 
 def isLiteral(value):	# Checks for the type of the value, returns a string of its type

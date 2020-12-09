@@ -28,7 +28,7 @@ for token in tokens:
 	print(token,"\n")
 
 
-
+print("Variable Dictionary: ",varDict)
 
 
 '''
