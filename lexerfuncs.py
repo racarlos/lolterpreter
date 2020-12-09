@@ -1,3 +1,4 @@
+from helperFuncs import 
 import re               # For Regex Matching 
 import os
 import sys
@@ -12,7 +13,10 @@ gimmeh = r"(\s*)(GIMMEH) ([a-zA-Z][a-zA-Z0-9_]+)"
 r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]+) (?P<kw>R) (?P<val>.+)"
 visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
 
-sumof = r"^SUM OF .+"				# Osie Half
+sumofL = r"(\s*)(?P<kw>SUM OF) (?P<op1>.+) (AN) ((?P<op2>.+))"			
+sumofB = r"(\s*)(SUM OF) (SUM OF? .+) (AN) (SUM OF? .+) (\s*)"  
+
+
 diffof = r"^DIFF OF .+"
 produktof = r"^PRODUKT OF .+"
 quoshuntof = r"^QUOSHUNT OF .+"
@@ -21,7 +25,7 @@ biggrof = r"^BIGGR OF .+"
 smallrof = r"^SMALLR OF .+"
 bothof = r"^BOTH OF .+" 
 
-eitherof = r"^EITHER OF .+" 		# Robie Half 
+eitherof = r"^EITHER OF .+" 	
 wonof = r"^WON OF .+"
 anyof = r"^ANY OF .+"
 allof = r"^ALL OF .+"
@@ -31,51 +35,11 @@ wtf = r"^WTF\?$"
 omg = r"^OMG .+"
 omgwtf = r"^OMGWTF$"
 
-
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+"
-strIdentifier = r"\".+\""
-numIdentifier = r"[0-9]+"
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"
+strIdentifier = r"^\".+\"$"
+numIdentifier = r"^[0-9]+$"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"
-
-def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
-	if re.match(varIdentifier,var):
-		return True
-	else: return False
-
-def isString(val):
-	if re.match(strIdentifier,val):
-		return True
-	else:
-		return False
-
-def isNumber(val):
-	if re.match(numIdentifier,val):
-		return True
-	else:
-		return False
-
-def isFloat(val):
-	if re.match(floatIdentifier,val):
-		return True
-	else : 
-		return False
-
-def isTroof(val):
-	if re.match(troofIdentifier,val):
-		return
-	else: 
-		return False
-
-
-def isLiteral(value):	# Checks for the type of the value, returns a string of its type
-
-	if isString(value): return "String Literal"
-	elif isNumber(value): return "Integer Literal"
-	elif isFloat(value): return "Float Literal"
-	elif isTroof(value): return "Troof Literal"
-	else : return False
-
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -95,8 +59,6 @@ def handleComments(sourceLines):					                        # Skips the comment
 			continue
 		newSourceLines.append(sourceLines[i])
 	return newSourceLines
-
-
 
 def tokenizer(sourceLines,tokens):
 
@@ -123,12 +85,15 @@ def tokenizer(sourceLines,tokens):
 				m = re.match(ihasitz,line).groups()
 				lineTokens.append(('Variable Identifier',m[2]))
 				lineTokens.append(("Assigment KeyWord",m[3]))
+
 				if isLiteral(m[4]) != False:										# m[2] is the variable , m[3] = ITZ, m[4] is the value 
 					literalType = isLiteral(m[4])
 					lineTokens.append((literalType,m[4]))	
 				elif isVariable(m[4]) == True: 
 					print("This a Variable")
 					lineTokens.append(("Assign to Variable",m[4]))	
+				elif m[4] != "":
+					lineTokens.append(("Possible Expression",m[4]))	
 				else:
 					print("Error at Ihasa: ",sourceLines.index(line))
 					
@@ -156,9 +121,9 @@ def tokenizer(sourceLines,tokens):
 
 			if kw == "R": lineTokens.append(('Assignment Keyword', kw))
 
-			if isLiteral(var) != False:
-				literalType = isLiteral(var)
-				lineTokens.append((literalType,var))
+			if isLiteral(val) != False:
+				literalType = isLiteral(val)
+				lineTokens.append((literalType,val))
 			else:
 				print("Error at R: ",sourceLines.index(line))
 		
@@ -180,8 +145,8 @@ def tokenizer(sourceLines,tokens):
 			else :
 				print("Error at Visible: ",sourceLines.index(line))
 		
-		elif re.match(visible,line) :	
-
+		elif re.match(sumof,line):												# Arithmetic Addition Statement 
+			
 
 		## End
 		tokens.append(lineTokens)
