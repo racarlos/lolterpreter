@@ -14,8 +14,10 @@ with open(sys.argv[1]) as f:						# Read the file
 sourceLines = re.split("\n",sourceLines)			# split into list per newline
 sourceLines = handleComments(sourceLines)			# Remove Comments here 
 
-if sourceLines[0] != "HAI" : print("Invalid start of program")
-if sourceLines[-1] != "KTHXBYE" : print("Invalid end of program")
+if sourceLines[0] != "HAI" : 
+	print("Invalid start of program")
+if sourceLines[-1] != "KTHXBYE" : 
+	print("Invalid end of program")
 
 # ADD FUNCTION FOR CHECKING IF THEIR IS AN INVALID CHARACTER IN THE WHOLE PROGRAM
 

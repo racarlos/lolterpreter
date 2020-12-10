@@ -6,6 +6,15 @@ numIdentifier = r"^[0-9]+$"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"
 
+arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF","BIGGROF","SMALLROF"]
+compOpsList = ["BOTHSAEM","DIFFRINT"]
+relOpsList = [None]
+logicOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
+
+# Global Lists
+varDict = {'IT':[None,None]} 
+
+
 def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
 	if re.match(varIdentifier,var):
 		return True
@@ -31,19 +40,18 @@ def isFloat(val):
 
 def isTroof(val):
 	if re.match(troofIdentifier,val):
-		return
+		return True
 	else: 
 		return False
 
-def getVarType(value):
+def getVarType(value):	# Returns the type of the Variable, Used for Tokenizing Variables
 	if isString(value): return "String"
 	elif isNumber(value): return "Integer"
 	elif isFloat(value): return "Float"
 	elif isTroof(value): return "Troof"
 	else : return False	
 
-
-def isLiteral(value):	# Checks for the type of the value, returns a string of its type
+def isLiteral(value):	# Checks for the type of the value, returns a string of its type, Used for Tokenizing Literals
 
 	if isString(value): return "String Literal"
 	elif isNumber(value): return "Integer Literal"
@@ -51,8 +59,60 @@ def isLiteral(value):	# Checks for the type of the value, returns a string of it
 	elif isTroof(value): return "Troof Literal"
 	else : return False
 
-def isArithOperand(value):
+def isArithOperand(value):	# Just like isLiteral but specific for arithmetic operands 
 	if isVariable(value): return "Variable Identifier"
 	elif isNumber(value): return "Integer Literal"
 	elif isFloat(value): return "Float Literal"
 	else : return False
+
+
+
+
+def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format 
+
+	if operand in varDict:					# If the operand is the lsit of variables 
+		varVal = varDict[operand][0]		# Get the value and the type 
+		operand = str(varVal)
+
+	return operand
+
+def evalVar(var):				# Function for Evaluating Variable value
+	if var in varDict:
+		val = varDict[var]
+		return val[1]			# Returns the 2nd element of the list which is the value 
+	else : 
+		return False			# If the var is not in the list return False 
+
+
+def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
+    
+	keywordListTuple = [("SUM OF","SUMOF"),("DIFF OF","DIFFOF"),("QUOSHUNT OF","QUOSHUNTOF"),("PRODUKT OF","PRODUKTOF"),("MOD OF","MODOF"),("BIGGR OF","BIGGROF"),("SMALLR OF","SMALLROF")]
+	for keyword in keywordListTuple:	# Replace keywords to corresponding change to allow string split and store each word as an element 
+		line = line.replace(keyword[0], keyword[1])
+	line = line.split()
+	return line
+
+def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
+    if operator == "SUMOF":
+    	answer = float(operand1) + float(operand2)
+    elif operator == "DIFFOF":
+        answer = float(operand1) - float(operand2)
+    elif operator == "PRODUKTOF":
+        answer = float(operand1) * float(operand2)
+    elif operator == "MODOF":
+        answer = float(operand1) % float(operand2)
+    elif operator == "BIGGROF":             			# Return the bigger value
+        answer = max(operand1,operand2)
+    elif operator == "SMALLROF":
+        answer = min(operand1,operand2)     			# Return the smaller Value
+    elif operator == "QUOSHUNTOF":
+        try:
+            answer = float(operand1) / float(operand2)
+        except ZeroDivisionError:
+            print("Zero division error",sourceLines.index(line))
+            exit(1)
+    else:
+        print("Error Unrecognized Arithmetic Operand")
+        exit(1)
+
+    return answer		# When conditions are cleared return the final answer 

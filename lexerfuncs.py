@@ -22,7 +22,7 @@ modof = r"^(\s*)(?P<kw>MOD OF) (?P<op1>.+) (AN) (?P<op2>.+)"
 # Comparison Expressions
 biggrof = r"^(\s*)(?P<kw>BIGGR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# > Operator, returns the bigger number
 smallrof = r"^(\s*)(?P<kw>SMALLR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# < Operator, returns the smaller number 
-bothsaem = r"^(\s*)(?P<kw>BOTH SAEM) (?P<op1>.+) (AN) (?P<op2>.+)"	# == Operator
+bothsaem = r"^(\s*)(?P<kw>BOTH SAEM) (?P<op1>.+) (AN) (?P<op2>.+)"		# == Operator
 diffrint = r"^(\s*)(?P<kw>DIFFRINT) (?P<op1>.+) (AN) (?P<op2>.+)"		# != Operator 
 
 # Logical Expressions 
@@ -44,13 +44,6 @@ floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"
 
 
-arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF"]
-compOpsList = ["BOTHOF","EITHEROF","NOT","EITHEROF","WONOF",]
-logicOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
-
-# Global Lists
-varDict = {} 
-
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -69,13 +62,62 @@ def handleComments(sourceLines):					                        # Skips the comment
 		if sourceLines[i]=='':
 			continue
 		newSourceLines.append(sourceLines[i])
+
 	return newSourceLines
+
+
+def mainArith(arithExpr):				# Function for handling arithmetic Expressions and returns the value or an error 
+	flag = True							# Flag if running should still continue
+	stack = []							# Stack used for computation
+
+	inputLength = len(arithExpr)
+
+	for i in range(inputLength):			# Add every element of String to the stack
+		new = arithExpr.pop(0)
+		stack.append(new)   
+	
+	while flag == True:
+
+		if len(stack) == 1:      # Only final answer should be left 
+			flag = False
+			finalAnswer = stack.pop(0)
+			return finalAnswer
+
+		for i in range(len(stack)-1):                                       # Len of Stack Refreshes after every iteration
+			char = stack[i] 
+
+			if char == "AN":
+				anIndex = i
+				try:
+					print("AN Index: ",anIndex)
+					ops = stack[anIndex-2]                  	                 # Operation, 2 steps behind AN
+					op1 = str(stack[anIndex-1])                                  # Operand 1, 1 step behind AN
+					op2 = str(stack[anIndex+1])                                  # Operand 2, 1 step ahead AN 
+
+					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
+					op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
+
+					print("Ops: ",ops," Op1: ",type(op1)," Op2: ",type(op2))
+					
+					# Handle Possible Variables 
+					if (ops in arithOpsList) and isArithOperand(op1) and isArithOperand(op2):
+						answer = evaluateArithExpr(ops,op1,op2)
+						for j in range(3): stack.pop(anIndex-2)             # Pop the Stack 3 times: Operation, OP1 , AN 
+						stack[anIndex-2] = answer                           # Replace OP2 with the answer
+						print("Stack after Operation: ",stack)
+						break												# Break Iteration after an operation has completed 
+					else:
+						pass
+				except: 
+					pass
+        	
 
 def tokenizer(sourceLines,tokens):
 	lineNumber = 0
 
 	for line in sourceLines:	# tokenize every line in the sourceLines 
-		lineNumber += 1				# Incremen Line Number
+
+		lineNumber += 1				# Increment Line Number
 		thisLine = line.split()		# List form of the line 
 		lineTokens = []
 		
@@ -93,7 +135,7 @@ def tokenizer(sourceLines,tokens):
 				lineTokens.append(('Variable Identifier',thisLine[3]))
 				varName = thisLine[3]
 		
-				varDict[varName] = [None,None]							# Add to variable dictionary with unknown type and unknown value 
+				varDict[varName] = [None,None]										# Add to variable dictionary with unknown type and unknown value 
 			
 			elif re.match(ihasitz,line):											# Variable Declaration with initialization
 				
@@ -104,12 +146,10 @@ def tokenizer(sourceLines,tokens):
 				if getVarType(m[4]) != False:										# m[2] is the variable , m[3] = ITZ, m[4] is the value 
 					varType = getVarType(m[4])
 					lineTokens.append((varType,m[4]))	
-
 					varDict[m[2]] = [varType,m[4]]
 
 				elif isVariable(m[4]) == True: 
 					print("This a Variable")
-
 					## Evaluate Variable Value 
 					lineTokens.append(("Assign to Variable",m[4]))	
 				elif m[4] != "":
@@ -130,6 +170,7 @@ def tokenizer(sourceLines,tokens):
 			else:
 				print("Line: ",lineNumber," Error at Gimmeh")
 				exit(1)
+		
 		elif re.match(r,line):													# If assignment Statement
 
 			m = re.match(r,line)
@@ -146,6 +187,7 @@ def tokenizer(sourceLines,tokens):
 				lineTokens.append((literalType,val))
 			else:
 				print("Error at R: ",sourceLines.index(line))
+				exit(1)
 		
 		elif re.match(visible,line) :											# If it is a print statement 
 			
@@ -155,7 +197,6 @@ def tokenizer(sourceLines,tokens):
 
 			lineTokens.append(('Print Keyword',kw))
 
-
 			if isVariable(expr): 
 				lineTokens.append(('Variable Identfier',expr))
 			elif isString(expr): 
@@ -164,18 +205,51 @@ def tokenizer(sourceLines,tokens):
 				lineTokens.append(('Possible Expression',expr))
 			else :
 				print("Error at Visible: ",sourceLines.index(line))
+				exit(1)
 		
-		elif re.match(sumof,line):												# Arithmetic Addition Statement 
-			pass
+		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		
-		elif re.match(diffof,line):
-			pass
+			arithExpr = manageArithKeywords(line)			# Converts SUM OF to SUMOF , and returns a list of individual lexemes
+			
+			for lexeme in arithExpr:
 
-		elif re.match(produktof,line):
-			pass
-		elif re.match(quoshuntof,line):
-			pass
+				if lexeme in arithOpsList:								# If the lexeme is an arith operator (SUMOF,DIFFOF)	
+					lineTokens.append(('Arithmetic Operator',lexeme))
+				elif lexeme == "AN":
+					lineTokens.append(('Operand Separator',lexeme))
+				elif isArithOperand(lexeme) != False:
+					lineTokens.append(('Arithmetic Operand',lexeme))
+				elif isVariable(lexeme) and evalVar(lexeme):
+					lineTokens.append(('Variable Identfier',lexeme))
+				else :
+					print("Arithmetic Lexical Error: ",sourceLines.index(line))
+					exit(1)
+
+			## Probably Part of Syntax analysis 
+			finalAnswer = mainArith(arithExpr)
+			print("Final Answer to Arithmetic Expression: ",finalAnswer)
+
+		elif re.match(bothsaem,line) or re.match(diffrint,line) or re.match(biggrof,line) or re.match(smallrof,line) :
+			
+			for lexeme in thisLine:
+
+				if lexeme in compOpsList:
+					lineTokens.append(('Comparison Operator',lexeme))
+				elif lexeme == "AN":
+					lineTokens.append(('Operand Separator',lexeme))
+				elif isCompOperand(lexeme) != False:
+					lineTokens.append(('Comparison Operand',lexeme))
+				elif isVariable(lexeme) and evalVar(lexeme):
+					lineTokens.append(('Variable Identfier',lexeme))
+				else :
+					print("Arithmetic Lexical Error: ",sourceLines.index(line))
+					exit(1)
+
+		else :
+			print("Gago ano yan!: ",print(line))
 
 
 		## End
 		tokens.append(lineTokens)
+
+
