@@ -50,9 +50,6 @@ def isCompOperand(x):
         return False 
 
 def checkCompOperands(op1,op2):         # Valid are number to number - biggr and smallr and boolean to boolean
-    
-
-    if re.match(numIdentifier)
 
     
 def compMain():
@@ -90,7 +87,6 @@ def compMain():
 					
                     valid = checkCompOperands(ops,op1,op2)                       # Check if the set of operands are valid 
 
-
 					# Handle Possible Variables 
 					if (ops in arithOpsList) and isArithOperand(op1) and isArithOperand(op2):
 						answer = evaluateCompExpr(ops,op1,op2)
@@ -102,4 +98,3 @@ def compMain():
 						pass
 				except: 
 					pass
-

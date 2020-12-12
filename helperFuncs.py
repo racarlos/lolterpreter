@@ -83,6 +83,10 @@ def evalVar(var):				# Function for Evaluating Variable value
 	else : 
 		return False			# If the var is not in the list return False 
 
+def evalArithOperand(operand):
+	if isNumber(operand): return int(operand)
+	elif isFloat(operand): return float(operand)
+	elif isVariable(operand): return evalVar(operand)					#key is string
 
 def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
     
@@ -93,21 +97,24 @@ def manageArithKeywords(line):        		# Make function to convert ops to 1 word
 	return line
 
 def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
+    operand1 = evalArithOperand(operand1)				#handle data type of operand
+    operand2 = evalArithOperand(operand2)
+
     if operator == "SUMOF":
-    	answer = float(operand1) + float(operand2)
+    	answer = operand1 + operand2
     elif operator == "DIFFOF":
-        answer = float(operand1) - float(operand2)
+        answer = operand1 - operand2
     elif operator == "PRODUKTOF":
-        answer = float(operand1) * float(operand2)
+        answer = operand1 * operand2
     elif operator == "MODOF":
-        answer = float(operand1) % float(operand2)
+        answer = operand1 % operand2
     elif operator == "BIGGROF":             			# Return the bigger value
         answer = max(operand1,operand2)
     elif operator == "SMALLROF":
         answer = min(operand1,operand2)     			# Return the smaller Value
     elif operator == "QUOSHUNTOF":
         try:
-            answer = float(operand1) / float(operand2)
+            answer = operand1 / operand2
         except ZeroDivisionError:
             print("Zero division error",sourceLines.index(line))
             exit(1)
