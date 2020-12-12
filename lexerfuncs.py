@@ -7,8 +7,8 @@ import sys
 
 hai = r"^HAI$"						# Done 
 kthxbye = r"^KTHXBYE$"
-ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]+)"
-ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]+) (ITZ) (.+)"
+ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
+ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
 gimmeh = r"(\s*)(GIMMEH) ([a-zA-Z][a-zA-Z0-9_]+)"
 r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]+) (?P<kw>R) (?P<val>.+)"
 visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
@@ -96,10 +96,12 @@ def tokenizer(sourceLines,tokens):
 					lineTokens.append((varType,m[4]))	
 					varDict[m[2]] = [varType,m[4]]
 
-				elif isVariable(m[4]) == True: 
-					print("This a Variable")
-					## Evaluate Variable Value 
+				elif isVariable(m[4]) == True and (m[4] in varDict): 				# Used in I HAS A X ITZ Y 
+					value = varDict[m[4]][1]
+					varType = varDict[m[4]][0]
+					varDict[m[2]] = [varType,value]
 					lineTokens.append(("Assign to Variable",m[4]))	
+
 				elif m[4] != "":
 					lineTokens.append(("Possible Expression",m[4]))	
 				else:
@@ -145,12 +147,14 @@ def tokenizer(sourceLines,tokens):
 
 			lineTokens.append(('Print Keyword',kw))
 
-			if isVariable(expr): 
+			if isVariable(expr) and expr in varDict: 				# Printing Variables 
 				lineTokens.append(('Variable Identfier',expr))
-			elif isString(expr): 
+				print(varDict[expr][1])
+			elif isString(expr): 									# Printing Plain String
 				lineTokens.append(('String Literal',expr))
+				print(expr)
 			elif expr != "" :
-				lineTokens.append(('Possible Expression',expr))
+				lineTokens.append(('Possible Expression',expr))		# Printing Expressions 
 			else :
 				print("Error at Visible: ",sourceLines.index(line))
 				exit(1)
@@ -177,9 +181,11 @@ def tokenizer(sourceLines,tokens):
 			finalAnswer = mainArith(arithExpr)
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
-		elif re.match(bothsaem,line) or re.match(diffrint,line) :
+		elif re.match(bothsaem,line) or re.match(diffrint,line) :		# Comparison Expressions 
+
+			compExpr = manageCompKeywords(line)
 			
-			for lexeme in thisLine:
+			for lexeme in compExpr:
 
 				if lexeme in compOpsList:
 					lineTokens.append(('Comparison Operator',lexeme))
@@ -194,11 +200,14 @@ def tokenizer(sourceLines,tokens):
 					exit(1)
 			
 			## Probably Part of Syntax analysis 
-			finalAnswer = mainComp(arithExpr)
+			finalAnswer = mainComp(compExpr)
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
+		elif re.match(notop,line):
+			pass
+
 		else :
-			print("Gago ano yan!: ",print(line))
+			print("Luh ano yan!: ",print(line))
 
 
 		## End

@@ -1,7 +1,7 @@
 import re
 
 # Patterns to Match With 
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"
 strIdentifier = r"^\".+\"$"
 numIdentifier = r"^[0-9]+$"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
@@ -62,7 +62,7 @@ def isLiteral(value):	# Checks for the type of the value, returns a string of it
 	else : return False
 
 
-def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format 
+def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format, Used in Operations
 
 	if operand in varDict:					# If the operand is the lsit of variables 
 		varVal = varDict[operand][0]		# Get the value and the type 
@@ -70,13 +70,12 @@ def evaluateIfVar(operand):		# Evaluates a possible variable to its value in str
 
 	return operand
 
-def evalVar(operand):		# Evaluates a possible variable to its value in string format 
-
-	if operand in varDict:					# If the operand is the lsit of variables 
-		varVal = varDict[operand][0]		# Get the value and the type 
-		operand = str(varVal)
-
-	return operand
+def evalVar(var):				# Function for Evaluating Variable value
+	if var in varDict:
+		val = varDict[var]
+		return val[1]			# Returns the 2nd element of the list which is the value 
+	else : 
+		return False			# If the var is not in the list return False 
 
 def printError(message,lineNumber):
 	print("Line: ",lineNumber," ",message)

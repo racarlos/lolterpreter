@@ -54,7 +54,7 @@ def isCompOperand(x):
 	else:
 		return False 
 	
-def compMain(compExpr):
+def mainComp(compExpr):
 	flag = True							# Flag if running should still continue
 	stack = []							# Stack used for computation
 										
