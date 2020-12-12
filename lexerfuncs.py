@@ -37,13 +37,6 @@ wtf = r"^WTF\?$"
 omg = r"^OMG .+"
 omgwtf = r"^OMGWTF$"
 
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]+$"	# Patterns for Literals 
-strIdentifier = r"^\".+\"$"
-numIdentifier = r"^[0-9]+$"
-floatIdentifier = r"^-?[0-9]+.[0-9]+$"
-troofIdentifier = r"^WIN$|^FAIL$"
-
-
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -65,51 +58,6 @@ def handleComments(sourceLines):					                        # Skips the comment
 
 	return newSourceLines
 
-
-def mainArith(arithExpr):				# Function for handling arithmetic Expressions and returns the value or an error 
-	flag = True							# Flag if running should still continue
-	stack = []							# Stack used for computation
-
-	inputLength = len(arithExpr)
-
-	for i in range(inputLength):			# Add every element of String to the stack
-		new = arithExpr.pop(0)
-		stack.append(new)   
-	
-	while flag == True:
-
-		if len(stack) == 1:      # Only final answer should be left 
-			flag = False
-			finalAnswer = stack.pop(0)
-			return finalAnswer
-
-		for i in range(len(stack)-1):                                       # Len of Stack Refreshes after every iteration
-			char = stack[i] 
-
-			if char == "AN":
-				anIndex = i
-				try:
-					print("AN Index: ",anIndex)
-					ops = stack[anIndex-2]                  	                 # Operation, 2 steps behind AN
-					op1 = str(stack[anIndex-1])                                  # Operand 1, 1 step behind AN
-					op2 = str(stack[anIndex+1])                                  # Operand 2, 1 step ahead AN 
-
-					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
-					op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
-
-					print("Ops: ",ops," Op1: ",type(op1)," Op2: ",type(op2))
-					
-					# Handle Possible Variables 
-					if (ops in arithOpsList) and isArithOperand(op1) and isArithOperand(op2):
-						answer = evaluateArithExpr(ops,op1,op2)
-						for j in range(3): stack.pop(anIndex-2)             # Pop the Stack 3 times: Operation, OP1 , AN 
-						stack[anIndex-2] = answer                           # Replace OP2 with the answer
-						print("Stack after Operation: ",stack)
-						break												# Break Iteration after an operation has completed 
-					else:
-						pass
-				except: 
-					pass
         	
 
 def tokenizer(sourceLines,tokens):
@@ -222,14 +170,14 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					print("Arithmetic Lexical Error: ",sourceLines.index(line))
+					print("Arithmetic Operation Lexical Error: ",sourceLines.index(line))
 					exit(1)
 
 			## Probably Part of Syntax analysis 
 			finalAnswer = mainArith(arithExpr)
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
-		elif re.match(bothsaem,line) or re.match(diffrint,line) or re.match(biggrof,line) or re.match(smallrof,line) :
+		elif re.match(bothsaem,line) or re.match(diffrint,line) :
 			
 			for lexeme in thisLine:
 
@@ -242,8 +190,12 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					print("Arithmetic Lexical Error: ",sourceLines.index(line))
+					print("Comparison Operation Lexical Error: ",sourceLines.index(line))
 					exit(1)
+			
+			## Probably Part of Syntax analysis 
+			finalAnswer = mainComp(arithExpr)
+			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
 		else :
 			print("Gago ano yan!: ",print(line))
