@@ -21,11 +21,14 @@ if sourceLines[-1] != "KTHXBYE" :
 
 # ADD FUNCTION FOR CHECKING IF THEIR IS AN INVALID CHARACTER IN THE WHOLE PROGRAM
 
+print("Lines: ")
 for line in sourceLines:
 	print("- ",line)
 
+print("\nOutput: ")
 tokenizer(sourceLines,tokens)							# Tokenize each line	
 
+print("\nTokens: ")
 for token in tokens:
 	print(token,"\n")
 
