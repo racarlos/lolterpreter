@@ -9,8 +9,8 @@ hai = r"^HAI$"						# Done
 kthxbye = r"^KTHXBYE$"
 ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
 ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
-gimmeh = r"(\s*)(GIMMEH) ([a-zA-Z][a-zA-Z0-9_]+)"
-r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]+) (?P<kw>R) (?P<val>.+)"
+gimmeh = r"(\s*)(?P<kw>GIMMEH) (?P<var>[a-zA-Z][a-zA-Z0-9_]*)"
+r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]*) (?P<kw>R) (?P<val>.+)"
 visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
 
 sumof = r"(\s*)(?P<kw>SUM OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# Arithmetic Expressions 
@@ -112,13 +112,18 @@ def tokenizer(sourceLines,tokens):
 				exit(1)
 
 		elif re.match(gimmeh,line):												# If it is an input Statement 
-			m = re.match(gimmeh,line).groups()
-			lineTokens.append(('Input KeyWord',m[1]))							# Gimmeh tokenized as keyword
-			
-			if isVariable(m[2]):
-				lineTokens.append(('Variable Identfier',m[2]))					# IF variable passes, tokenized as variable identifier 
+			m = re.match(gimmeh,line)
+			kw = m.group('kw')
+			var = m.group('var')
+			lineTokens.append(('Input KeyWord',kw))								# Gimmeh tokenized as keyword
+			if isVariable(var) and (var in varDict):
+				lineTokens.append(('Variable Identfier',var))					# IF variable passes, tokenized as variable identifier 
+				varVal = input()
+				varType = getVarType(varVal)
+				varDict[var] = [varType,varVal]
+		
 			else:
-				print("Line: ",lineNumber," Error at Gimmeh")
+				print("Line: ",lineNumber," Error at Gimmeh, Variable Not Found")
 				exit(1)
 		
 		elif re.match(r,line):													# If assignment Statement
