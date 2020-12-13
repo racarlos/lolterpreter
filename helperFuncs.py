@@ -92,7 +92,13 @@ def isArithOperand(value):	# Just like isLiteral but specific for arithmetic ope
 def evalArithOperand(operand):
 	if isNumber(operand): return int(operand)
 	elif isFloat(operand): return float(operand)
-	elif isVariable(operand): return evalVar(operand)					#key is string
+	elif isVariable(operand):			#key is string
+		operand = evalVar(operand)
+		if type(operand) is int or type(operand) is float:
+			return operand
+		else:
+			print("Error operand is not Numbr or Numbar")
+			exit(1)
 
 def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
     
@@ -115,9 +121,19 @@ def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithm
     elif operator == "MODOF":
         answer = operand1 % operand2
     elif operator == "BIGGROF":             			# Return the bigger value
-        answer = max(operand1,operand2)
+        if operand1 > operand2:
+			answer = operand1
+		elif operand2 > operand1:
+			answer = operand2
+		else:											#if operands are equal returns operand1 data type and value
+			answer = operand1
     elif operator == "SMALLROF":
-        answer = min(operand1,operand2)     			# Return the smaller Value
+        if operand1 < operand2:
+			answer = operand1
+		elif operand2 < operand1:
+			answer = operand2
+		else:											#if operands are equal returns operand1 data type and value
+			answer = operand1
     elif operator == "QUOSHUNTOF":
         try:
             answer = operand1 / operand2
