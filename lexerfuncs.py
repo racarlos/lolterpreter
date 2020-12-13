@@ -5,7 +5,7 @@ import sys
 
 # Patterns to match with a line
 
-hai = r"^HAI$"						# Done 
+hai = r"^HAI $"						# Done 
 kthxbye = r"^KTHXBYE$"
 ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
 ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
@@ -70,10 +70,10 @@ def tokenizer(sourceLines,tokens):
 		lineTokens = []
 		
 		if re.match(hai,line):											# Start
-			lineTokens.append(('Program Delimiter',line))
+			lineTokens.append(('Program Start',line))
 
 		elif re.match(kthxbye,line):								    # End
-			lineTokens.append(('Program Delimiter',line))
+			lineTokens.append(('Program End',line))
 
 		elif re.match(ihasa,line):										# Variable Declaration 
 
@@ -108,9 +108,8 @@ def tokenizer(sourceLines,tokens):
 					print("Error at Ihasa: ",sourceLines.index(line))
 					
 			else: 
-				print("Line:",lineNumber,"Error in Lexer - Variable Declaration")
-				exit(1)
-
+				printError("Error in Lexer - Variable Declaration",sourceLines.index(line))
+	
 		elif re.match(gimmeh,line):												# If it is an input Statement 
 			m = re.match(gimmeh,line)
 			kw = m.group('kw')
@@ -123,8 +122,7 @@ def tokenizer(sourceLines,tokens):
 				varDict[var] = [varType,varVal]
 		
 			else:
-				print("Line: ",lineNumber," Error at Gimmeh, Variable Not Found")
-				exit(1)
+				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line))
 		
 		elif re.match(r,line):													# If assignment Statement
 
@@ -141,9 +139,8 @@ def tokenizer(sourceLines,tokens):
 				literalType = isLiteral(val)
 				lineTokens.append((literalType,val))
 			else:
-				print("Error at R: ",sourceLines.index(line))
-				exit(1)
-		
+				printError("Error at R: ",sourceLines.index(line))
+				
 		elif re.match(visible,line) :											# If it is a print statement 
 			
 			m = re.match(visible, line)
@@ -161,12 +158,11 @@ def tokenizer(sourceLines,tokens):
 			elif expr != "" :
 				lineTokens.append(('Possible Expression',expr))		# Printing Expressions 
 			else :
-				print("Error at Visible: ",sourceLines.index(line))
-				exit(1)
-		
+				printError("Error at Visible Statement: ",sourceLines.index(line))
+				
 		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		
-			arithExpr = manageArithKeywords(line)			# Converts SUM OF to SUMOF , and returns a list of individual lexemes
+			arithExpr = manageArithKeywords(line)			
 			
 			for lexeme in arithExpr:
 
@@ -179,11 +175,12 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					print("Arithmetic Operation Lexical Error: ",sourceLines.index(line))
-					exit(1)
-
-			## Probably Part of Syntax analysis 
+					printError("Arithmetic Operation Lexical Error: ",sourceLines.index(line))
+			
+			# Assign Expression's return value to IT 
 			finalAnswer = mainArith(arithExpr)
+			varType = getVarType(finalAnswer)
+			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
 		elif re.match(bothsaem,line) or re.match(diffrint,line) :		# Comparison Expressions 
@@ -201,18 +198,19 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					print("Comparison Operation Lexical Error: ",sourceLines.index(line))
-					exit(1)
-			
-			## Probably Part of Syntax analysis 
-			finalAnswer = mainComp(compExpr)
+					printError("Comparison Operation Lexical Error: ",sourceLines.index(line))
+						
+			# Assign Expression's return value to IT 
+			finalAnswer = mainComp(arithExpr)
+			varType = getVarType(finalAnswer)
+			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
 		elif re.match(notop,line):
 			pass
 
 		else :
-			print("Luh ano yan!: ",print(line))
+			print("Uncerognized Pattern: ",print(line))
 
 
 		## End

@@ -11,7 +11,7 @@ troofIdentifier = r"^WIN$|^FAIL$"
 arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF","BIGGROF","SMALLROF"]
 compOpsList = ["BIGGROF","SMALLROF","BOTHSAEM","DIFFRINT"]
 relOpsList = [None]
-logicOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
+boolOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
 
 # Global Lists
 varDict = {'IT':[None,None]} 
@@ -78,7 +78,10 @@ def evalVar(var):				# Function for Evaluating Variable value
 		return False			# If the var is not in the list return False 
 
 def printError(message,lineNumber):
-	print("Line: ",lineNumber," ",message)
+	if lineNumber = "":
+		print(message)
+	else:
+		print("Line: ",lineNumber," ",message)
 	exit(1)
 
 ## Functions for Arithmetic Expressions =======================================================================================================================
@@ -101,7 +104,7 @@ def evalArithOperand(operand):
 			exit(1)
 
 def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
-    
+	
 	keywordListTuple = [("SUM OF","SUMOF"),("DIFF OF","DIFFOF"),("QUOSHUNT OF","QUOSHUNTOF"),("PRODUKT OF","PRODUKTOF"),("MOD OF","MODOF"),("BIGGR OF","BIGGROF"),("SMALLR OF","SMALLROF")]
 	for keyword in keywordListTuple:	# Replace keywords to corresponding change to allow string split and store each word as an element 
 		line = line.replace(keyword[0], keyword[1])
@@ -109,42 +112,42 @@ def manageArithKeywords(line):        		# Make function to convert ops to 1 word
 	return line
 
 def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
-    operand1 = evalArithOperand(operand1)				#handle data type of operand
-    operand2 = evalArithOperand(operand2)
+	operand1 = evalArithOperand(operand1)				#handle data type of operand
+	operand2 = evalArithOperand(operand2)
 
-    if operator == "SUMOF":
-    	answer = operand1 + operand2
-    elif operator == "DIFFOF":
-        answer = operand1 - operand2
-    elif operator == "PRODUKTOF":
-        answer = operand1 * operand2
-    elif operator == "MODOF":
-        answer = operand1 % operand2
-    elif operator == "BIGGROF":             			# Return the bigger value
-        if operand1 > operand2:
+	if operator == "SUMOF":
+		answer = operand1 + operand2
+	elif operator == "DIFFOF":
+		answer = operand1 - operand2
+	elif operator == "PRODUKTOF":
+		answer = operand1 * operand2
+	elif operator == "MODOF":
+		answer = operand1 % operand2
+	elif operator == "BIGGROF":             			# Return the bigger value
+		if operand1 > operand2:
 			answer = operand1
 		elif operand2 > operand1:
 			answer = operand2
 		else:											#if operands are equal returns operand1 data type and value
 			answer = operand1
-    elif operator == "SMALLROF":
-        if operand1 < operand2:
+	elif operator == "SMALLROF":
+		if operand1 < operand2:
 			answer = operand1
 		elif operand2 < operand1:
 			answer = operand2
 		else:											#if operands are equal returns operand1 data type and value
 			answer = operand1
-    elif operator == "QUOSHUNTOF":
-        try:
-            answer = operand1 / operand2
-        except ZeroDivisionError:
-            print("Zero division error",sourceLines.index(line))
-            exit(1)
-    else:
-        print("Error Unrecognized Arithmetic Operand")
-        exit(1)
+	elif operator == "QUOSHUNTOF":
+		try:
+			answer = operand1 / operand2
+		except ZeroDivisionError:
+			print("Zero division error",sourceLines.index(line))
+			exit(1)
+	else:
+		print("Error Unrecognized Arithmetic Operand")
+		exit(1)
 
-    return answer		# When conditions are cleared return the final answer 
+	return answer		# When conditions are cleared return the final answer 
 
 def mainArith(arithExpr):				# Function for handling arithmetic Expressions and returns the value or an error 
 	flag = True							# Flag if running should still continue
