@@ -53,8 +53,14 @@ def boolMain(boolExpr):
 	for i in range(inputLength):									      # Add every element of String to the stack
 		new = boolExpr.pop(0)
 		stack.append(new)   
-
+	
 	while flag == True:
+
+		# Error Conditions : First Element is AN or not an Operator or last element is AN or Operator
+
+		if stack[-1] == "AN" or stack[-1] in boolOpsList or not(stack[0] in boolOpsList) or stack[0] == "AN" or stack[1] == "AN":			# Exit if the last element is An or Operator 
+			print("Syntax Error Boolean Operation - Precheck")
+			exit(1)		
 
 		if len(stack) == 1:                                               # Only final answer should be left 
 			flag = False
@@ -65,15 +71,28 @@ def boolMain(boolExpr):
 			char = stack[i] 
 
 			if char == "NOT":                                             # Not of is separated because it only has 1 operand 
+				valid = True
 				try:
 					ops = stack[i]
 					op1 = stack[i+1]
-					if isBoolOperand(op1) and op1 == "WIN":	answer = "FAIL"
-					elif isBoolOperand(op1) and op1 == "FAIL": answer = "WIN"
+
+					# Evaluate op1 if variable 
+
+					if isBoolOperand(op1) and op1 == "WIN":	
+						answer = "FAIL"
+					elif isBoolOperand(op1) and op1 == "FAIL": 
+						answer = "WIN"
+					else : 
+						valid = False
+						print("Invalid NOT Operand")
+						exit(1)
+
 					stack.pop(i)                                            # Pop the not of
 					stack[i] = answer
 				except: 
 					pass
+
+				if valid == False: exit(1)
 
 			elif char == "ALLOF":                                           #  Infinite Arity And
 				valid = True
@@ -163,7 +182,13 @@ def boolMain(boolExpr):
 
 
 			elif char == "AN":
+				valid = True
 				anIndex = i
+
+				if stack.index(stack[i]) == 0 or stack.index(stack[i]) == 1: 
+					print("Boolean Operation Syntax Error")
+					valid = False
+		
 				try:
 					print("AN Index: ",anIndex)
 					ops = stack[anIndex-2]                  	                 # Operation, 2 steps behind AN
@@ -183,16 +208,18 @@ def boolMain(boolExpr):
 				except: 
 					pass
 
+				if valid == False: exit(1)
 
-str1 = "NOT WIN"
+
+str1 = "AN WOW"
 str2 = "NOT FAIL"
-str3 = "BOTH OF EITHER OF WIN AN FAIL AN EITHER OF WIN AN FAIL"
+str3 = "BOTH OF BOTH OF WIN AN WIN AN BOTH OF WIN AN FAIL"
 str4 = "EITHER OF FAIL AN FAIL"
 str5 = "WON OF WIN AN WIN"
 
-str6 = "ANY OF FAIL AN FAIL AN FAIL AN WIN MKAY"
+str6 = "WIN AN BOTH OF WIN AN FAIL AN"
 
-sample = manageBoolKeywords(str6)
+sample = manageBoolKeywords(str2)
 print(sample)
 final = boolMain(sample)
 print("Final Answer: ",final)

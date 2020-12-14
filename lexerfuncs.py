@@ -5,7 +5,7 @@ import sys
 
 # Patterns to match with a line
 
-hai = r"^HAI $"						# Done 
+hai = r"^HAI$"						# Done 
 kthxbye = r"^KTHXBYE$"
 ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
 ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
@@ -26,12 +26,12 @@ bothsaem = r"^(\s*)(?P<kw>BOTH SAEM) (?P<op1>.+) (AN) (?P<op2>.+)"		# == Operato
 diffrint = r"^(\s*)(?P<kw>DIFFRINT) (?P<op1>.+) (AN) (?P<op2>.+)"		# != Operator 
 
 # Logical Expressions 
-notop = r"^NOT .+"				# NOT 
-bothof = r"^BOTH OF .+" 		# AND
-eitherof = r"^EITHER OF .+" 	# OR
-wonof = r"^WON OF .+"			# XOR
-anyof = r"^ANY OF .+"			# Will take infinite arguments and apply AND
-allof = r"^ALL OF .+"			# Will take infinite arguments and apply OR
+notop = r"^(\s*)(?P<kw>NOT) (?P<op1>.+)"										# NOT 
+bothof = r"^(\s*)(?P<kw>BOTH OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# AND
+eitherof = r"^(\s*)(?P<kw>EITHER OF) (?P<op1>.+) (AN) (?P<op2>.+)" 				# OR
+wonof = r"^(\s*)(?P<kw>WON OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# XOR
+anyof = r"^(\s*)(?P<kw>ANY OF) .+"												# Will take infinite arguments and apply AND
+allof = r"^(\s*)(?P<kw>ALL OF) .+"												# Will take infinite arguments and apply OR
 
 wtf = r"^WTF\?$"
 omg = r"^OMG .+"
@@ -204,13 +204,34 @@ def tokenizer(sourceLines,tokens):
 			finalAnswer = mainComp(compExpr)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
-			print("Final Answer to Arithmetic Expression: ",finalAnswer)
+			print("Final Answer to Comparison Expression: ",finalAnswer)
 
-		elif re.match(notop,line):
-			pass
+		elif re.match(notop,line) or re.match(eitherof,line) or re.match(bothof,line) or re.match(allof,line) or re.match(anyof,line):		# Boolean operations
+
+			boolExpr = manageBoolKeywords(line)
+
+			for lexeme in boolExpr:
+
+				if lexeme in boolOpsList:
+					lineTokens.append(('Boolean Operator',lexeme))
+				elif lexeme == "AN":
+					lineTokens.append(('Operand Separator',lexeme))
+				elif isBoolOperand(lexeme) != False:
+					lineTokens.append(('Boolean Operand',lexeme))
+				elif isVariable(lexeme) and evalVar(lexeme):
+					lineTokens.append(('Variable Identfier',lexeme))
+				else :
+					printError("Boolean Operation Lexical Error: ",sourceLines.index(line))
+
+			# Assign Expression's return value to IT 
+			finalAnswer = mainBool(boolExpr)
+			varType = getVarType(finalAnswer)
+			varDict['IT'] = [varType,finalAnswer]
+			print("Final Answer to Boolean Expression: ",finalAnswer)
+		
 
 		else :
-			print("Uncerognized Pattern: ",print(line))
+			print("Uncerognized Pattern: ",sourceLines.index(line))
 
 
 		## End
