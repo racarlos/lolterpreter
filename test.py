@@ -104,5 +104,6 @@ str2 = "BOTH SAEM FAIL AN FAIL AN"
 str3 = "BOTH SAEM SMALLR OF 5 AN 2 AN SMALLR OF 56 AN 2"
 
 sample = manageCompKeywords(str3)
-final = compMain(sample)
-print("Final Answer: ",final)
+print(sample)
+# final = compMain(sample)
+# print("Final Answer: ",final)

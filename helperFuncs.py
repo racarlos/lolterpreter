@@ -78,7 +78,7 @@ def evalVar(var):				# Function for Evaluating Variable value
 		return False			# If the var is not in the list return False 
 
 def printError(message,lineNumber):
-	if lineNumber = "":
+	if lineNumber == "":
 		print(message)
 	else:
 		print("Line: ",lineNumber," ",message)

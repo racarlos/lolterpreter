@@ -201,7 +201,7 @@ def tokenizer(sourceLines,tokens):
 					printError("Comparison Operation Lexical Error: ",sourceLines.index(line))
 						
 			# Assign Expression's return value to IT 
-			finalAnswer = mainComp(arithExpr)
+			finalAnswer = mainComp(compExpr)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)

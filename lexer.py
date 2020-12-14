@@ -19,7 +19,6 @@ if sourceLines[0] != "HAI" :
 if sourceLines[-1] != "KTHXBYE" : 
 	printError("Invalid End of program","")
 
-# ADD FUNCTION FOR CHECKING IF THERE IS AN INVALID CHARACTER IN THE WHOLE PROGRAM
 
 print("Lines: ")
 for line in sourceLines:
