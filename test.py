@@ -101,9 +101,9 @@ def mainComp(compExpr):
 
 str1 = "SMALLR OF SMALLR OF 1 AN 2 AN SMALLR OF 3 AN 4 "
 str2 = "BOTH SAEM FAIL AN FAIL AN"
-str3 = "BOTH SAEM SMALLR OF 5 AN 2 AN SMALLR OF 56 AN 2"
+str3 = "BOTH SAEM AN SMALLR OF 5 AN 2 AN SMALLR OF 56 AN 2"
 
-sample = manageCompKeywords(str3)
+sample = manageCompKeywords(str2)
 print(sample)
 # final = compMain(sample)
 # print("Final Answer: ",final)

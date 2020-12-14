@@ -100,9 +100,8 @@ def evalArithOperand(operand):
 		if type(operand) is int or type(operand) is float:
 			return operand
 		else:
-			printError("Operand is not Numbr or Numbar",sourceLines.index(line))
-			# print("Error operand is not Numbr or Numbar")
-			# exit(1)
+			print("Error operand is not Numbr or Numbar")
+			exit(1)
 
 def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
 	
@@ -138,13 +137,11 @@ def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithm
 		try:
 			answer = operand1 / operand2
 		except ZeroDivisionError:
-			printError("Zero division error",sourceLines.index(line))
-			# print("Zero division error",sourceLines.index(line))
-			# exit(1)
+			print("Zero division error",sourceLines.index(line))
+			exit(1)
 	else:
-		printError("Unrecognized Arithmetic Operand",sourceLines.index(line))
-		# print("Error Unrecognized Arithmetic Operand")
-		# exit(1)
+		print("Error Unrecognized Arithmetic Operand")
+		exit(1)
 
 	return answer		# When conditions are cleared return the final answer 
 
@@ -154,6 +151,7 @@ def checkArithExpression(stack,listFlag):	#checks the stack if it's balanced # I
 	operationsList= None
 	if listFlag == "Arithmetic": operationsList = arithOpsList
 	elif listFlag == "Boolean": operationsList = boolOpsList
+	elif listFlag == "Comparison": operationsList = compOpsList
 	
 	for key in stack:
 		if key in operationsList: countArithKey+=1
@@ -162,13 +160,15 @@ def checkArithExpression(stack,listFlag):	#checks the stack if it's balanced # I
 
 	#break for ALL OF and ANY OF
 	if countArithKey != countAnKey:
-		printError("Unbalanced pairs of Arithmetic Operands and Operators",sourceLines.index(line))
+		print("Error: Unbalanced pairs of Arithmetic Operands and Operators")
+		exit(1)
 
 #constantly checks within the loop the stack and the series of elements in it
 def checkStackExpr(stack,listFlag):
 	operationsList= None
 	if listFlag == "Arithmetic": operationsList = arithOpsList
 	elif listFlag == "Boolean": operationsList = boolOpsList
+	elif listFlag == "Comparison": operationsList = compOpsList
 
 	if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
 		print("Syntax Error, Incorrect AN Placement")
@@ -231,8 +231,9 @@ def mainArith(arithExpr):				# Function for handling arithmetic Expressions and 
 					else:
 						pass
 				except:
-					printError("Error in Arithmetic Expression",sourceLines.index(line))
-					#pass
+					#printError("Error in Arithmetic Expression",sourceLines.index(line))
+					print("Error in Arithmetic Expression")
+					exit(1)
 
 
 
@@ -294,9 +295,9 @@ def mainComp(compExpr):
 		stack.append(new)   
 	
 
-	checkArithExpression(stack,"Boolean")
+	checkArithExpression(stack,"Comparison")
 	while flag == True:
-		hasError= checkStackExpr(stack,"Boolean")
+		hasError= checkStackExpr(stack,"Comparison")
 		if hasError == True : exit(1)									  # Exit if there is an error detected 
 
 		if len(stack) == 1:			 # Only final answer should be left 
@@ -326,7 +327,8 @@ def mainComp(compExpr):
 					else:
 						pass
 				except: 
-					pass
+					print("Error in Comparison Expression")
+					exit(1)
 
 
 ## End of Functions for Comparison Expressions =======================================================================================================================
