@@ -148,12 +148,19 @@ def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithm
 
 	return answer		# When conditions are cleared return the final answer 
 
-def checkArithExpression(stack):	#checks the stack if it's balanced
+def checkArithExpression(stack,listFlag):	#checks the stack if it's balanced # I should probably change the name for both Arithmetic and Boolean
 	countArithKey = 0
 	countAnKey = 0
+	operationsList= None
+	if listFlag == "Arithmetic": operationsList = arithOpsList
+	elif listFlag == "Boolean": operationsList = boolOpsList
+	
 	for key in stack:
-		if key in arithOpsList: countArithKey+=1
+		if key in operationsList: countArithKey+=1
+		elif key == "NOT": continue
 		elif key == "AN": countAnKey+=1
+
+	#break for ALL OF and ANY OF
 	if countArithKey != countAnKey:
 		printError("Unbalanced pairs of Arithmetic Operands and Operators",sourceLines.index(line))
 
@@ -186,7 +193,7 @@ def mainArith(arithExpr):				# Function for handling arithmetic Expressions and 
 		stack.append(new)   
 
 	# Error Detection here
-	checkArithExpression(stack)										#Exits if it encounters an error
+	checkArithExpression(stack,"Arithmetic")										#Exits if it encounters an error
 
 	while flag == True:
 
@@ -286,7 +293,11 @@ def mainComp(compExpr):
 		new = compExpr.pop(0)
 		stack.append(new)   
 	
+
+	checkArithExpression(stack,"Boolean")
 	while flag == True:
+		hasError= checkStackExpr(stack,"Boolean")
+		if hasError == True : exit(1)									  # Exit if there is an error detected 
 
 		if len(stack) == 1:			 # Only final answer should be left 
 			flag = False
@@ -371,21 +382,9 @@ def mainBool(boolExpr):
 		new = boolExpr.pop(0)
 		stack.append(new)   
 	
+	#checkArithExpression(stack,"Boolean")
 	while flag == True:
 
-		#hasError = False
-		# try:
-		# 	if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
-		# 		print("Syntax Error, Incorrect AN Placement")
-		# 		hasError = True
-		# 	elif not (stack[0] in boolOpsList):
-		# 		print("Syntax Error, First Element not an Operator")
-		# 		hasError = True
-		# 	elif stack[-1] in boolOpsList:
-		# 		print("Syntax Error, Last Element is an Operator")
-		# 		hasError = True
-		# except: 
-		# 	pass
 		hasError= checkStackExpr(stack,"Boolean")
 		if hasError == True : exit(1)									  # Exit if there is an error detected 
 
