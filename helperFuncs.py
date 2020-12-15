@@ -147,7 +147,7 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 
 	return answer		# When conditions are cleared return the final answer 
 
-def checkExpression(stack,listFlag,lineNumber):	#checks the stack if it's balanced # I should probably change the name for both Arithmetic and Boolean
+def checkExpression(stack,listFlag,lineNumber):	#checks the stack if it's balanced
 	countArithKey = 0
 	countAnKey = 0
 	operationsList= None
@@ -537,3 +537,19 @@ def mainBool(boolExpr,lineNumber):
 
 
 ## End of Functions for Boolean Expressions =======================================================================================================================
+
+def smooshExpression(stack,lineNumber):															# return the concatenated string
+	smooshedWords = ""
+	if stack[-1] == "AN": printError("Incomplete number of items to SMOOSH",lineNumber)			# Hanging AN keyword
+
+	for i in range(len(stack)):
+		if i%2 == 1:
+			if stack[i] != "AN": printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
+		else:
+			if isLiteral(stack[i]): smooshedWords += str(stack[i])								# Literal
+			elif isVariable(stack[i]):															# Variable
+				temp = evalVar(stack[i])
+				if temp != False: smooshedWords += str(temp)
+				else: printError(str(stack[i])+ " is not defined",lineNumber)
+			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
+	return smooshedWords

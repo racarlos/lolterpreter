@@ -103,7 +103,28 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 	else:
 		printError("Expression has no return value",lineNumber)
 
-        	
+def smooshHelper(line):
+	stringOpen = r'\".+'					# string with multiple spaces
+	stringClose = r'.+\"$'
+	stringLiteral = r'\".+\"'				# string has one word
+
+	line = line.split()
+	concat = ""
+	modifiedLine = []
+	flag = False
+	for word in line:
+		if re.match(stringLiteral,word): modifiedLine.append(word)
+		elif re.match(stringOpen,word):
+			concat += (word+" ")
+			flag = True
+		elif re.match(stringClose,word):
+			concat += word
+			flag = False
+			modifiedLine.append(concat)
+			concat = ""
+		elif flag: concat += (word+" ")
+		else: modifiedLine.append(word)
+	return modifiedLine
 
 def tokenizer(sourceLines,tokens):
 	lineNumber = 0
@@ -285,6 +306,37 @@ def tokenizer(sourceLines,tokens):
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
+
+		elif re.match(smoosh,line):
+			m = re.match(smoosh,line)
+			kw = m.group('kw')
+			ops = m.group('ops')
+
+			ops = smooshHelper(ops)
+
+			lineTokens.append(('Concatenate KeyWord',kw))
+			for lexeme in ops:
+				if lexeme == "AN":
+					lineTokens.append(('Operand Separator',lexeme))
+				else:
+					lineTokens.append(('Concatenation Operator',lexeme))
+
+			isAN = False
+			smooshOps = []
+			for lexeme in ops:
+				if isAN == False and lexeme != "AN":
+					smooshOps.append(lexeme)
+					isAN = True
+				elif isAN == True and lexeme == "AN":
+					isAN = False
+				else:
+					print(lexeme)
+					printError("Unrecognized Characters",sourceLines.index(line)+1)
+
+			finalAnswer = smooshExpression(ops,lineNumber)
+			varType = getVarType(finalAnswer)
+			varDict['IT'] = [varType,finalAnswer]
+			print("SMOOSH: "+ finalAnswer)
 		
 		elif re.match(empty,line):
 			print("an empty line")
