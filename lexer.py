@@ -14,10 +14,10 @@ with open(sys.argv[1]) as f:						# Read the file
 sourceLines = re.split("\n",sourceLines)			# split into list per newline
 sourceLines = handleComments(sourceLines)			# Remove Comments here 
 
-if sourceLines[0] != "HAI" : 
-	printError("Invalid Start of program","")
-if sourceLines[-1] != "KTHXBYE" : 
-	printError("Invalid End of program","")
+if not(re.match(hai,sourceLines[0])): 
+	printError("Invalid Start of program",1)
+if not(re.match(kthxbye,sourceLines[-1])) : 
+	printError("Invalid End of program",len(sourceLines))
 
 
 print("Lines: ")

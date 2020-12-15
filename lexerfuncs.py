@@ -3,40 +3,6 @@ import re               # For Regex Matching
 import os
 import sys
 
-# Patterns to match with a line
-
-hai = r"^HAI$"						# Done 
-kthxbye = r"^KTHXBYE$"
-ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
-ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
-gimmeh = r"(\s*)(?P<kw>GIMMEH) (?P<var>[a-zA-Z][a-zA-Z0-9_]*)"
-r = r"(\s*)(?P<var>[a-zA-Z][a-zA-Z0-9_]*) (?P<kw>R) (?P<val>.+)"
-visible = r"(\s*)(?P<kw>VISIBLE) (?P<expr>.+)"
-
-sumof = r"(\s*)(?P<kw>SUM OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# Arithmetic Expressions 
-diffof = r"^(\s*)(?P<kw>DIFF OF) (?P<op1>.+) (AN) (?P<op2>.+)"
-produktof = r"^(\s*)(?P<kw>PRODUKT OF) (?P<op1>.+) (AN) (?P<op2>.+)"
-quoshuntof = r"^(\s*)(?P<kw>QUOSHUNT OF) (?P<op1>.+) (AN) (?P<op2>.+)"
-modof = r"^(\s*)(?P<kw>MOD OF) (?P<op1>.+) (AN) (?P<op2>.+)"
-
-# Comparison Expressions
-biggrof = r"^(\s*)(?P<kw>BIGGR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# > Operator, returns the bigger number
-smallrof = r"^(\s*)(?P<kw>SMALLR OF) (?P<op1>.+) (AN) (?P<op2>.+)"		# < Operator, returns the smaller number 
-bothsaem = r"^(\s*)(?P<kw>BOTH SAEM) (?P<op1>.+) (AN) (?P<op2>.+)"		# == Operator
-diffrint = r"^(\s*)(?P<kw>DIFFRINT) (?P<op1>.+) (AN) (?P<op2>.+)"		# != Operator 
-
-# Logical Expressions 
-notop = r"^(\s*)(?P<kw>NOT) (?P<op1>.+)"										# NOT 
-bothof = r"^(\s*)(?P<kw>BOTH OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# AND
-eitherof = r"^(\s*)(?P<kw>EITHER OF) (?P<op1>.+) (AN) (?P<op2>.+)" 				# OR
-wonof = r"^(\s*)(?P<kw>WON OF) (?P<op1>.+) (AN) (?P<op2>.+)"					# XOR
-anyof = r"^(\s*)(?P<kw>ANY OF) .+"												# Will take infinite arguments and apply AND
-allof = r"^(\s*)(?P<kw>ALL OF) .+"												# Will take infinite arguments and apply OR
-
-wtf = r"^WTF\?$"
-omg = r"^OMG .+"
-omgwtf = r"^OMGWTF$"
-
 
 def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
 	newSourceLines= []
@@ -57,6 +23,85 @@ def handleComments(sourceLines):					                        # Skips the comment
 		newSourceLines.append(sourceLines[i])
 
 	return newSourceLines
+
+def evaluateExpression(expr,lineNumber,lineTokens):
+
+	finalAnswer = None						# Final answer is value of the expression to be returned
+	# Arithmetic Expressions
+	if re.match(sumof,expr) or re.match(diffof,expr) or re.match(produktof,expr) or re.match(quoshuntof,expr) or re.match(modof,expr) or re.match(biggrof,expr) or re.match(smallrof,expr):
+
+		arithExpr = manageArithKeywords(expr)			
+		
+		for lexeme in arithExpr:
+
+			if lexeme in arithOpsList:								# If the lexeme is an arith operator (SUMOF,DIFFOF)	
+				lineTokens.append(('Arithmetic Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isArithOperand(lexeme) != False:
+				lineTokens.append(('Arithmetic Operand',lexeme))
+			elif isVariable(lexeme) and evalVar(lexeme):
+				lineTokens.append(('Variable Identfier',lexeme))
+			else :
+				printError("Arithmetic Operation Lexical Error: ",lineNumber)
+
+		value = str(mainArith(arithExpr,lineNumber))
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+	
+	# Comparison Expressions
+	elif re.match(bothsaem,expr) or re.match(diffrint,expr):
+
+		compExpr = manageCompKeywords(line)
+			
+		for lexeme in compExpr:
+
+			if lexeme in compOpsList:
+				lineTokens.append(('Comparison Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isCompOperand(lexeme) != False:
+				lineTokens.append(('Comparison Operand',lexeme))
+			elif isVariable(lexeme) and evalVar(lexeme):
+				lineTokens.append(('Variable Identfier',lexeme))
+			else :
+				printError("Comparison Operation Lexical Error ",lineNumber)
+
+		value = str(mainComp(compExpr,lineNumber))
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+
+	# Boolean Expressions
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
+
+		boolExpr = manageBoolKeywords(expr)
+
+		for lexeme in boolExpr:
+
+			if lexeme in boolOpsList:
+				lineTokens.append(('Boolean Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isBoolOperand(lexeme) != False:
+				lineTokens.append(('Boolean Operand',lexeme))
+			elif isVariable(lexeme) and evalVar(lexeme):
+				lineTokens.append(('Variable Identfier',lexeme))
+			else :
+				printError("Boolean Operation Lexical Error: ",lineNumber)
+		
+		value = str(mainBool(boolExpr,lineNumber))
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+
+	# If it doesn't match with any expression print an error 
+	else:
+		printError("Invalid Expression",lineNumber)
+
+	if finalAnswer != None:
+		print("Answer to Eval Expression: ",finalAnswer)
+		return finalAnswer
+	else:
+		printError("Expression has no return value",lineNumber)
 
         	
 
@@ -102,13 +147,14 @@ def tokenizer(sourceLines,tokens):
 					varDict[m[2]] = [varType,value]
 					lineTokens.append(("Assign to Variable",m[4]))	
 
-				elif m[4] != "":
-					lineTokens.append(("Possible Expression",m[4]))	
+				elif isExpression(m[4]):
+					exprValue = evaluateExpression(m[4],sourceLines.index(line)+1,lineTokens)	# exprValue[0] = type | exprValue[0] = value 
+					varDict[m[2]] = exprValue
 				else:
-					print("Error at Ihasa: ",sourceLines.index(line))
+					printError("Variable Declaration Error",sourceLines.index(line)+1)
 					
 			else: 
-				printError("Error in Lexer - Variable Declaration",sourceLines.index(line))
+				printError("Error in Lexer - Variable Declaration",sourceLines.index(line)+1)
 	
 		elif re.match(gimmeh,line):												# If it is an input Statement 
 			m = re.match(gimmeh,line)
@@ -118,11 +164,12 @@ def tokenizer(sourceLines,tokens):
 			if isVariable(var) and (var in varDict):
 				lineTokens.append(('Variable Identfier',var))					# IF variable passes, tokenized as variable identifier 
 				varVal = input()
+				varVal = str(varVal)
 				varType = getVarType(varVal)
 				varDict[var] = [varType,varVal]
 		
 			else:
-				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line))
+				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line)+1)
 		
 		elif re.match(r,line):													# If assignment Statement
 
@@ -138,8 +185,14 @@ def tokenizer(sourceLines,tokens):
 			if isLiteral(val) != False:
 				literalType = isLiteral(val)
 				lineTokens.append((literalType,val))
+			elif isVariable(val) and val in varDict:
+				varDict[var][0] = varDict[val][0]
+				varDict[var][0] = varDict[val][0] 
+			elif isExpression(val) :
+				exprValue = evaluateExpression(val,sourceLines.index(line)+1,lineTokens)
+				varDict[var] = exprValue
 			else:
-				printError("Error at R: ",sourceLines.index(line))
+				printError("Error at R: ",sourceLines.index(line)+1)
 				
 		elif re.match(visible,line) :											# If it is a print statement 
 			
@@ -151,14 +204,16 @@ def tokenizer(sourceLines,tokens):
 
 			if isVariable(expr) and expr in varDict: 				# Printing Variables 
 				lineTokens.append(('Variable Identfier',expr))
-				print(varDict[expr][1])
+				print("Visible: ",varDict[expr][1])
 			elif isString(expr): 									# Printing Plain String
 				lineTokens.append(('String Literal',expr))
-				print(expr)
-			elif expr != "" :
-				lineTokens.append(('Possible Expression',expr))		# Printing Expressions 
+				print("Visible: ",expr)
+			elif isExpression(expr) :
+				message = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
+				varDict['IT'] = message
+				print("Visible: ",varDict['IT'][1])
 			else :
-				printError("Error at Visible Statement: ",sourceLines.index(line))
+				printError("Error at Visible Statement: ",sourceLines.index(line)+1)
 				
 		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		
@@ -175,10 +230,10 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Arithmetic Operation Lexical Error: ",sourceLines.index(line))
+					printError("Arithmetic Operation Lexical Error: ",sourceLines.index(line)+1)
 			
 			# Assign Expression's return value to IT 
-			finalAnswer = mainArith(arithExpr)
+			finalAnswer = mainArith(arithExpr,sourceLines.index(line)+1)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
@@ -198,10 +253,10 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Comparison Operation Lexical Error: ",sourceLines.index(line))
+					printError("Comparison Operation Lexical Error ",sourceLines.index(line)+1)
 						
 			# Assign Expression's return value to IT 
-			finalAnswer = mainComp(compExpr)
+			finalAnswer = mainComp(compExpr,sourceLines.index(line)+1)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Comparison Expression: ",finalAnswer)
@@ -221,17 +276,18 @@ def tokenizer(sourceLines,tokens):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Boolean Operation Lexical Error: ",sourceLines.index(line))
+					printError("Boolean Operation Lexical Error: ",sourceLines.index(line)+1)
 
 			# Assign Expression's return value to IT 
-			finalAnswer = mainBool(boolExpr)
+			finalAnswer = mainBool(boolExpr,sourceLines.index(line)+1)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
 		
 
 		else :
-			print("Uncerognized Pattern: ",sourceLines.index(line))
+			printError("Unrecognized Pattern",sourceLines.index(line)+1)
+	
 
 
 		## End

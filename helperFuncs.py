@@ -1,21 +1,15 @@
+from patterns import * 
 import re
-
-# Patterns to Match With 
-varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"
-strIdentifier = r"^\".+\"$"
-numIdentifier = r"^[0-9]+$"
-floatIdentifier = r"^-?[0-9]+.[0-9]+$"
-troofIdentifier = r"^WIN$|^FAIL$"
-
-# Lists of Compatible Operands
-arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF","BIGGROF","SMALLROF"]
-compOpsList = ["BIGGROF","SMALLROF","BOTHSAEM","DIFFRINT"]
-relOpsList = [None]
-boolOpsList = ["NOT","BOTHOF","EITHEROF","WONOF","ANYOF","ALLOF"]
 
 # Global Lists
 varDict = {'IT':[None,None]} 
 
+def printError(message,lineNumber):
+	if lineNumber == "":
+		print(message)
+	else:
+		print("Line:",lineNumber,"",message)
+	exit(1)
 
 def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
 	if re.match(varIdentifier,var):
@@ -61,11 +55,25 @@ def isLiteral(value):	# Checks for the type of the value, returns a string of it
 	elif isTroof(value): return "Troof Literal"
 	else : return False
 
+def isExpression(expr):
+
+	if re.match(sumof,expr) or re.match(diffof,expr) or re.match(produktof,expr) or re.match(quoshuntof,expr) or re.match(modof,expr) or re.match(biggrof,expr) or re.match(smallrof,expr):
+		print("Matched With Arithmetic Expression",expr)
+		return True
+	elif re.match(bothsaem,expr) or re.match(diffrint,expr):
+		print("Matched With Comparison Expression")
+		return True
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):
+		print("Matched With Boolean Expression",expr)
+		return True
+	else:
+		print("Did not match with any expression",expr)
+		return False
 
 def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format, Used in Operations
 
 	if operand in varDict:					# If the operand is the lsit of variables 
-		varVal = varDict[operand][0]		# Get the value and the type 
+		varVal = varDict[operand][1]		# Get the value and the type 
 		operand = str(varVal)
 
 	return operand
@@ -77,12 +85,7 @@ def evalVar(var):				# Function for Evaluating Variable value
 	else : 
 		return False			# If the var is not in the list return False 
 
-def printError(message,lineNumber):
-	if lineNumber == "":
-		print(message)
-	else:
-		print("Line: ",lineNumber," ",message)
-	exit(1)
+
 
 ## Functions for Arithmetic Expressions =======================================================================================================================
 
@@ -111,7 +114,7 @@ def manageArithKeywords(line):        		# Make function to convert ops to 1 word
 	line = line.split()
 	return line
 
-def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
+def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
 	operand1 = evalArithOperand(operand1)				#handle data type of operand
 	operand2 = evalArithOperand(operand2)
 
@@ -137,15 +140,14 @@ def evaluateArithExpr(operator,operand1,operand2):		# Evaluates the Given Arithm
 		try:
 			answer = operand1 / operand2
 		except ZeroDivisionError:
-			print("Zero division error",sourceLines.index(line))
-			exit(1)
+			printError("Zero division error",lineNumber)
+
 	else:
-		print("Error Unrecognized Arithmetic Operand")
-		exit(1)
+		printError("Error Unrecognized Arithmetic Operand",lineNumber)
 
 	return answer		# When conditions are cleared return the final answer 
 
-def checkArithExpression(stack,listFlag):	#checks the stack if it's balanced # I should probably change the name for both Arithmetic and Boolean
+def checkExpression(stack,listFlag,lineNumber):	#checks the stack if it's balanced # I should probably change the name for both Arithmetic and Boolean
 	countArithKey = 0
 	countAnKey = 0
 	operationsList= None
@@ -160,8 +162,7 @@ def checkArithExpression(stack,listFlag):	#checks the stack if it's balanced # I
 
 	#break for ALL OF and ANY OF
 	if countArithKey != countAnKey:
-		print("Error: Unbalanced pairs of Arithmetic Operands and Operators")
-		exit(1)
+		printError("Error: Unbalanced pairs of Arithmetic Operands and Operators",lineNumber)
 
 #constantly checks within the loop the stack and the series of elements in it
 def checkStackExpr(stack,listFlag):
@@ -170,19 +171,21 @@ def checkStackExpr(stack,listFlag):
 	elif listFlag == "Boolean": operationsList = boolOpsList
 	elif listFlag == "Comparison": operationsList = compOpsList
 
-	if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
-		print("Syntax Error, Incorrect AN Placement")
-		return True
-	elif not (stack[0] in operationsList):
-		print("Syntax Error, First Element not an Operator")
-		return True
-	elif stack[-1] in operationsList:
-		print("Syntax Error, Last Element is an Operator")
-		return True
-	else: return False
+	try:
+		if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
+			print("Syntax Error,",listFlag," Incorrect AN Placement")
+			return True
+		elif not (stack[0] in operationsList):
+			print("Syntax Error,",listFlag," First Element not an Operator")
+			return True
+		elif stack[-1] in operationsList:
+			print("Syntax Error,",listFlag," Last Element is an Operator")
+			return True
+	except:
+		pass
 
 
-def mainArith(arithExpr):				# Function for handling arithmetic Expressions and returns the value or an error 
+def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expressions and returns the value or an error 
 	flag = True							# Flag if running should still continue
 	stack = []							# Stack used for computation
 
@@ -193,12 +196,14 @@ def mainArith(arithExpr):				# Function for handling arithmetic Expressions and 
 		stack.append(new)   
 
 	# Error Detection here
-	checkArithExpression(stack,"Arithmetic")										#Exits if it encounters an error
+	checkExpression(stack,"Arithmetic",lineNumber)										#Exits if it encounters an error
 
 	while flag == True:
 
-		hasError= checkStackExpr(stack,"Arithmetic")
-		if hasError == True : exit(1)									  # Exit if there is an error detected 
+		hasError = checkStackExpr(stack,"Arithmetic")
+
+		if hasError == True :														  # Exit if there is an error detected 
+			printError("Error in Comparison Expression",lineNumber)
 
 		if len(stack) == 1:	  # Only final answer should be left 
 			flag = False
@@ -216,14 +221,14 @@ def mainArith(arithExpr):				# Function for handling arithmetic Expressions and 
 					op1 = str(stack[anIndex-1])								  # Operand 1, 1 step behind AN
 					op2 = str(stack[anIndex+1])								  # Operand 2, 1 step ahead AN 
 
-					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
-					op2 = evaluateIfVar(op2)									 # then evaluates them to their value but in string 
+					op1 = str(evaluateIfVar(op1))								 # Checks if the Operands are Possible Variables  
+					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value but in string 
 
-					print("Ops: ",ops," Op1: ",type(op1)," Op2: ",type(op2))
+					print("Ops: ",ops," Op1: ",op1," Op2: ",op2)
 					
 					# Handle Possible Variables 
 					if (ops in arithOpsList) and isArithOperand(op1) and isArithOperand(op2):
-						answer = evaluateArithExpr(ops,op1,op2)
+						answer = evaluateArithExpr(ops,op1,op2,lineNumber)
 						for j in range(3): stack.pop(anIndex-2)			 # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = answer						   # Replace OP2 with the answer
 						print("Stack after Operation: ",stack)
@@ -231,10 +236,8 @@ def mainArith(arithExpr):				# Function for handling arithmetic Expressions and 
 					else:
 						pass
 				except:
-					#printError("Error in Arithmetic Expression",sourceLines.index(line))
-					print("Error in Arithmetic Expression")
-					exit(1)
-
+					printError("Error in Arithmetic Expression",lineNumber)
+			
 
 
 ## End of Functions for Arithmetic Expressions =======================================================================================================================
@@ -253,7 +256,7 @@ def manageCompKeywords(line):
 	line = line.split()
 	return line
 
-def evaluateCompExpr(operator,operand1,operand2) :
+def evaluateCompExpr(operator,operand1,operand2,lineNumber) :
 
 	print("Ops: ",operator," Op1: ",operand1," Op2: ",operand2)
 	answer = None
@@ -279,12 +282,12 @@ def evaluateCompExpr(operator,operand1,operand2) :
 
 		answer = min(operand1,operand2)
 	else:
-		print("Error Unrecognized Comparison Operator or Invalid Pair of Operands")
-		exit(1)
+		printError("Error Unrecognized Comparison Operator or Invalid Pair of Operands",lineNumber)
+
 
 	return answer
 
-def mainComp(compExpr):
+def mainComp(compExpr,lineNumber):
 	flag = True							# Flag if running should still continue
 	stack = []							# Stack used for computation
 										
@@ -294,11 +297,13 @@ def mainComp(compExpr):
 		new = compExpr.pop(0)
 		stack.append(new)   
 	
+	checkExpression(stack,"Comparison",lineNumber)
 
-	checkArithExpression(stack,"Comparison")
 	while flag == True:
-		hasError= checkStackExpr(stack,"Comparison")
-		if hasError == True : exit(1)									  # Exit if there is an error detected 
+		hasError = checkStackExpr(stack,"Comparison")
+
+		if hasError == True :											  # Exit if there is an error detected 
+			printError("Error in Comparison Expression",lineNumber)
 
 		if len(stack) == 1:			 # Only final answer should be left 
 			flag = False
@@ -320,15 +325,15 @@ def mainComp(compExpr):
 					op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
 		
 					if (ops in compOpsList) and isCompOperand(op1) and isCompOperand(op2):
-						answer = evaluateCompExpr(ops,op1,op2)
+						answer = evaluateCompExpr(ops,op1,op2,lineNumber)
 						for j in range(3): stack.pop(anIndex-2)				  # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = answer								# Replace OP2 with the answer
 						break													 # Break Iteration after an operation has completed 
 					else:
 						pass
 				except: 
-					print("Error in Comparison Expression")
-					exit(1)
+					printError("Error in Comparison Expression",lineNumber)
+			
 
 
 ## End of Functions for Comparison Expressions =======================================================================================================================
@@ -347,9 +352,9 @@ def manageBoolKeywords(line):
 	line = line.split()
 	return line
 
-def evaluateBoolExpr(operator,operand1,operand2):
+def evaluateBoolExpr(operator,operand1,operand2,lineNumber):
 
-	print("Ops: ",operator," Op1: ",operand1," Op2: ",operand2)
+	print("Operator: ",operator," Op1: ",operand1," Op2: ",operand2)
 
 	if operand1 == "WIN": operand1 = True				# Cast to Boolean Type to take advantage of pythhon operations
 	elif operand1 == "FAIL": operand1 = False
@@ -365,8 +370,7 @@ def evaluateBoolExpr(operator,operand1,operand2):
 		if operand1 != operand2: answer = True
 		else: answer = False
 	else:
-		print("Unrecognized boolean operator")
-		exit(1)
+		printError("Unrecognized boolean operator",lineNumber)
 	
 	if answer == True: answer = "WIN"
 	elif answer == False: answer = "FAIL"
@@ -374,7 +378,7 @@ def evaluateBoolExpr(operator,operand1,operand2):
 	return answer
 
 
-def mainBool(boolExpr):
+def mainBool(boolExpr,lineNumber):
 	flag = True
 	stack = []							    # Stack used for computation
 										
@@ -384,11 +388,12 @@ def mainBool(boolExpr):
 		new = boolExpr.pop(0)
 		stack.append(new)   
 	
-	#checkArithExpression(stack,"Boolean")
+	#checkExpression(stack,"Boolean")
 	while flag == True:
 
-		hasError= checkStackExpr(stack,"Boolean")
-		if hasError == True : exit(1)									  # Exit if there is an error detected 
+		hasError = checkStackExpr(stack,"Boolean")
+		if hasError == True : 									  		# Exit if there is an error detected 
+			printError("Error in Boolean Expression",lineNumber)
 
 		if len(stack) == 1:                                               # Only final answer should be left 
 			flag = False
@@ -412,15 +417,15 @@ def mainBool(boolExpr):
 						answer = "WIN"
 					else : 
 						valid = False
-						print("Invalid NOT Operand")
-						exit(1)
+						
 
 					stack.pop(i)                                            # Pop the not of
 					stack[i] = answer
 				except: 
 					pass
 
-				if valid == False: exit(1)
+				if valid == False: 
+					printError("Invalid Not Operand",lineNumber)
 
 			elif char == "ALLOF":                                           #  Infinite Arity And
 				valid = True
@@ -454,15 +459,12 @@ def mainBool(boolExpr):
 						print(stack)
 						break						# break out of outer loop to refresh count
 						
-
-					elif end == False:
-						valid = False
-						print("Error in All OF, matching MKAY not found.")
-				
+					elif end == False: valid = False
 				except:
 					pass
 
-				if valid == False: exit(1)
+				if valid == False: 
+					printError("Error in All OF, matching MKAY not found.",lineNumber)
 
 			elif char == "ANYOF":                                           	 # Infinite Arity Or
 				valid = True													
@@ -489,29 +491,25 @@ def mainBool(boolExpr):
 								stack[i+1] = answer
 								continue									
 							else: 
-								print("ERROR ====================",stack)
 								pass
 						
 						stack.pop(i+2)				# pop MKAY
 						stack.pop(i)				# pop ANY OF 
 						print(stack)
 						break						# break out of outer loop to refresh count
-						
-
-					elif end == False:
-						print("Error in ANY OF, matching MKAY not found.")
-						valid = False
+					
+					elif end == False: valid = False
 				except:
 					pass
 
-				if valid == False: exit(1)
+				if valid == False: 
+					printError("Error in ANY OF, matching MKAY not found.",lineNumber)
 
 			elif char == "AN":
 				valid = True
 				anIndex = i
 
 				if stack.index(stack[i]) == 0 or stack.index(stack[i]) == 1: 
-					print("Boolean Operation Syntax Error")
 					valid = False
 		
 				try:
@@ -520,11 +518,12 @@ def mainBool(boolExpr):
 					op1 = str(stack[anIndex-1])                                  # Operand 1, 1 step behind AN
 					op2 = str(stack[anIndex+1])                                  # Operand 2, 1 step ahead AN 
 
-					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
-					op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
-		
+					op1 = str(evaluateIfVar(op1))									 # Checks if the Operands are Possible Variables  
+					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value in string 
+			
 					if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-						answer = evaluateBoolExpr(ops,op1,op2)
+						print("here")
+						answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 						for j in range(3): stack.pop(anIndex-2)                  # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = answer                                # Replace OP2 with the answer
 						break									        		 # Break Iteration after an operation has completed 
@@ -533,7 +532,8 @@ def mainBool(boolExpr):
 				except: 
 					pass
 
-				if valid == False: exit(1)
+				if valid == False: 
+					printError("Boolean Operation Syntax Error",lineNumber)
 
 
 ## End of Functions for Boolean Expressions =======================================================================================================================
