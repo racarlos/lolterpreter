@@ -202,6 +202,8 @@ def tokenizer(sourceLines,tokens):
 
 			lineTokens.append(('Print Keyword',kw))
 
+
+
 			if isVariable(expr) and expr in varDict: 				# Printing Variables 
 				lineTokens.append(('Variable Identfier',expr))
 				print("Visible: ",varDict[expr][1])
@@ -284,8 +286,12 @@ def tokenizer(sourceLines,tokens):
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
 		
+		elif re.match(empty,line):
+			print("an empty line")
+			pass
 
 		else :
+			print(line)
 			printError("Unrecognized Pattern",sourceLines.index(line)+1)
 	
 

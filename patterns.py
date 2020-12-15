@@ -8,8 +8,9 @@ floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"
 
 # Patterns to match with a line
-hai = r"^HAI (.*)$"						# Done 
+hai = r"^HAI(.*)$"						# Done 
 kthxbye = r"^KTHXBYE$"
+empty = r"^(\s*)$"
 ihasa = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*)"
 ihasitz = r"(\s*)(I HAS A) ([a-zA-Z][a-zA-Z0-9_]*) (ITZ) (.+)"
 gimmeh = r"(\s*)(?P<kw>GIMMEH) (?P<var>[a-zA-Z][a-zA-Z0-9_]*)"
