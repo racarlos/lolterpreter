@@ -246,7 +246,6 @@ def tokenizer(sourceLines,tokens):
 			m = re.match(visible, line)
 			kw = m.group('kw')
 			lineTokens.append(('Print Keyword',kw))	
-<<<<<<< HEAD
 			expr = m.group('expr')
 			
 			if re.match(smoosh,expr):											#currently special case
@@ -258,11 +257,6 @@ def tokenizer(sourceLines,tokens):
 				print("=============")
 				continue
 			
-=======
-
-			expr = m.group('expr')
-			originalExpr = expr
->>>>>>> 27b363027e6cab5a7699df498543626d3d736485
 			strList = re.findall(r"\"[^\"]*\"",expr)
 			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
 			copy = []							# Copy list used for evaluation

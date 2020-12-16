@@ -456,11 +456,6 @@ def mainBool(boolExpr,lineNumber):
 							operation = "BOTHOF"									# ALL OF is a reeated form of BOTH OF 
 							op1 = str(stack[i+1])
 							op2 = str(stack[i+3])
-<<<<<<< HEAD
-	
-							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
-=======
 
 							op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
 							op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
@@ -468,7 +463,6 @@ def mainBool(boolExpr,lineNumber):
 							if (operation in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 								answer = evaluateBoolExpr(operation,op1,op2,lineNumber)
 								print("Answer: ",answer)
->>>>>>> 27b363027e6cab5a7699df498543626d3d736485
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
 								
