@@ -1,3 +1,7 @@
 HAI
-SMOOSH 5 AN 2.0 AN WIN AN "here lies this" AN "code" AN 12
+I HAS A x ITZ 5
+I HAS A y ITZ 6
+I HAS A answer
+answer R SMALLR OF x AN y
+VISIBLE "min(" x "," y ") is " answer
 KTHXBYE

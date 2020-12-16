@@ -223,20 +223,20 @@ def tokenizer(sourceLines,tokens):
 
 			lineTokens.append(('Print Keyword',kw))
 
+			print(expr)
 
-
-			if isVariable(expr) and expr in varDict: 				# Printing Variables 
-				lineTokens.append(('Variable Identfier',expr))
-				print("Visible: ",varDict[expr][1])
-			elif isString(expr): 									# Printing Plain String
-				lineTokens.append(('String Literal',expr))
-				print("Visible: ",expr)
-			elif isExpression(expr) :
-				message = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
-				varDict['IT'] = message
-				print("Visible: ",varDict['IT'][1])
-			else :
-				printError("Error at Visible Statement: ",sourceLines.index(line)+1)
+			# if isVariable(expr) and expr in varDict: 				# Printing Variables 
+			# 	lineTokens.append(('Variable Identfier',expr))
+			# 	print("Visible: ",varDict[expr][1])
+			# elif isString(expr): 									# Printing Plain String
+			# 	lineTokens.append(('String Literal',expr))
+			# 	print("Visible: ",expr)
+			# elif isExpression(expr) :
+			# 	message = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
+			# 	varDict['IT'] = message
+			# 	print("Visible: ",varDict['IT'][1])
+			# else :
+			# 	printError("Error at Visible Statement: ",sourceLines.index(line)+1)
 				
 		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		
@@ -339,7 +339,6 @@ def tokenizer(sourceLines,tokens):
 			print("SMOOSH: "+ finalAnswer)
 		
 		elif re.match(empty,line):
-			print("an empty line")
 			pass
 
 		else :
