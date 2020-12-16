@@ -45,14 +45,14 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			else :
 				printError("Arithmetic Operation Lexical Error: ",lineNumber)
 
-		value = mainArith(arithExpr,lineNumber)
+		value = str(mainArith(arithExpr,lineNumber))
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 	
 	# Comparison Expressions
 	elif re.match(bothsaem,expr) or re.match(diffrint,expr):
 
-		compExpr = manageCompKeywords(line)
+		compExpr = manageCompKeywords(expr)
 			
 		for lexeme in compExpr:
 
@@ -67,7 +67,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			else :
 				printError("Comparison Operation Lexical Error ",lineNumber)
 
-		value = mainComp(compExpr,lineNumber)
+		value = str(mainComp(compExpr,lineNumber))
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
@@ -86,10 +86,13 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Boolean Operand',lexeme))
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
+			elif lexeme == "MKAY":
+				lineTokens.append(('End Keyword',lexeme))
 			else :
+				print(lexeme)
 				printError("Boolean Operation Lexical Error: ",lineNumber)
 		
-		value = mainBool(boolExpr,lineNumber)
+		value = str(mainBool(boolExpr,lineNumber))
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
@@ -207,6 +210,9 @@ def tokenizer(sourceLines,tokens):
 			if isLiteral(val) != False:
 				literalType = isLiteral(val)
 				lineTokens.append((literalType,val))
+				val = str(val)
+				varType = getVarType(val)
+				varDict[var] = [varType,val]
 			elif isVariable(val) and val in varDict:
 				varDict[var][0] = varDict[val][0]
 				varDict[var][0] = varDict[val][0] 
@@ -222,8 +228,8 @@ def tokenizer(sourceLines,tokens):
 			kw = m.group('kw')
 			lineTokens.append(('Print Keyword',kw))	
 
-
 			expr = m.group('expr')
+			originalExpr = expr
 			strList = re.findall(r"\"[^\"]*\"",expr)
 			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
 			copy = []							# Copy list used for evaluation
@@ -243,7 +249,7 @@ def tokenizer(sourceLines,tokens):
 
 				elif isLiteral(entry) !=  False:								# If printing a Literal
 					dataType = isLiteral(entry)
-					lineTokens.append(('data type',entry))
+					lineTokens.append((dataType,entry))
 				
 				elif isExpression(entry):										# If printing an expression 
 					
