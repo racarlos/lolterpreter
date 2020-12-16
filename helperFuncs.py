@@ -1,6 +1,13 @@
 from patterns import * 
 import re
 
+# Patterns to Match With for a lexeme
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"
+strIdentifier = r"\".+\""
+numIdentifier = r"^[0-9]+$"
+floatIdentifier = r"^-?[0-9]+.[0-9]+$"
+troofIdentifier = r"^WIN$|^FAIL$"
+
 # Global Lists
 varDict = {'IT':[None,None]} 
 
@@ -41,10 +48,10 @@ def isTroof(val):
 		return False
 
 def getVarType(value):	# Returns the type of the Variable, Used for Tokenizing Variables
-	if isString(value): return "String"
-	elif isNumber(value): return "Integer"
+	if isNumber(value): return "Integer"
 	elif isFloat(value): return "Float"
 	elif isTroof(value): return "Troof"
+	elif isString(value): return "String"
 	else : return False	
 
 def isLiteral(value):	# Checks for the type of the value, returns a string of its type, Used for Tokenizing Literals
@@ -439,28 +446,30 @@ def mainBool(boolExpr,lineNumber):
 						if m == "MKAY": 
 							end = stack.index(m)	
 							break						
-					
+				
 					if end != False:
 						
 						while stack[i+2] != "MKAY":
-							ops = "BOTHOF"									# ALL OF is a reeated form of BOTH OF 
+							operation = "BOTHOF"									# ALL OF is a reeated form of BOTH OF 
 							op1 = str(stack[i+1])
 							op2 = str(stack[i+3])
 
 							op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
 							op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
 
-							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-								answer = evaluateBoolExpr(ops,op1,op2)
+							if (operation in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
+								answer = evaluateBoolExpr(operation,op1,op2,lineNumber)
+								print("Answer: ",answer)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
+								
 								continue									
 							else: 
+								print("Failed to Evaluate Boolean: ",operation,op1,op2)
 								pass
 						
 						stack.pop(i+2)				# pop MKAY
 						stack.pop(i)				# pop ALL OF 
-						print(stack)
 						break						# break out of outer loop to refresh count
 						
 					elif end == False: valid = False
@@ -493,7 +502,7 @@ def mainBool(boolExpr,lineNumber):
 							op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
 							
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-								answer = evaluateBoolExpr(ops,op1,op2)
+								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
 								continue									
@@ -528,7 +537,6 @@ def mainBool(boolExpr,lineNumber):
 					op1 = str(evaluateIfVar(op1))									 # Checks if the Operands are Possible Variables  
 					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value in string 
 			
-					print(ops,op1,op2)
 					if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 					
 						answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
