@@ -1,6 +1,13 @@
 from patterns import * 
 import re
 
+# Patterns to Match With for a lexeme
+varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"
+strIdentifier = r"\".+\""
+numIdentifier = r"^[0-9]+$"
+floatIdentifier = r"^-?[0-9]+.[0-9]+$"
+troofIdentifier = r"^WIN$|^FAIL$"
+
 # Global Lists
 varDict = {'IT':[None,None]} 
 
@@ -41,10 +48,10 @@ def isTroof(val):
 		return False
 
 def getVarType(value):	# Returns the type of the Variable, Used for Tokenizing Variables
-	if isString(value): return "String"
-	elif isNumber(value): return "Integer"
+	if isNumber(value): return "Integer"
 	elif isFloat(value): return "Float"
 	elif isTroof(value): return "Troof"
+	elif isString(value): return "String"
 	else : return False	
 
 def isLiteral(value):	# Checks for the type of the value, returns a string of its type, Used for Tokenizing Literals
@@ -63,14 +70,14 @@ def isExpression(expr):
 	elif re.match(bothsaem,expr) or re.match(diffrint,expr):
 		print("Matched With Comparison Expression")
 		return True
-	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(wonof,expr) or re.match(allof,expr) or re.match(anyof,expr):
 		print("Matched With Boolean Expression",expr)
 		return True
 	elif re.match(smoosh,expr):
 		print("Matched With Concatenation Expression", expr)
 		return True
 	else:
-		print("Did not match with any expression: ",expr)
+		#print("Did not match with any expression: ",expr)
 		return False
 
 def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format, Used in Operations
@@ -405,14 +412,16 @@ def mainBool(boolExpr,lineNumber):
 
 		for i in range(len(stack)-1):                                     # Len of Stack Refreshes after every iteration
 			char = stack[i] 
-
-			if char == "NOT" and isBoolOperand(stack[i+1]):                                             # Not of is separated because it only has 1 operand 
+			print(stack)
+			if char == "NOT" :                                             # Not of is separated because it only has 1 operand 
 				valid = True
 				try:
 					ops = stack[i]
 					op1 = stack[i+1]
+					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
 
 					# Evaluate op1 if variable 
+					print("Ops: ",ops," Op1: ",op1)
 
 					if isBoolOperand(op1) and op1 == "WIN":	
 						answer = "FAIL"
@@ -421,7 +430,6 @@ def mainBool(boolExpr,lineNumber):
 					else : 
 						valid = False
 						
-
 					stack.pop(i)                                            # Pop the not of
 					stack[i] = answer
 				except: 
@@ -441,25 +449,36 @@ def mainBool(boolExpr,lineNumber):
 						if m == "MKAY": 
 							end = stack.index(m)	
 							break						
-					
+				
 					if end != False:
 						
 						while stack[i+2] != "MKAY":
-							ops = "BOTHOF"									# ALL OF is a reeated form of BOTH OF 
+							operation = "BOTHOF"									# ALL OF is a reeated form of BOTH OF 
 							op1 = str(stack[i+1])
 							op2 = str(stack[i+3])
+<<<<<<< HEAD
 	
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
+=======
+
+							op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
+							op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
+
+							if (operation in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
+								answer = evaluateBoolExpr(operation,op1,op2,lineNumber)
+								print("Answer: ",answer)
+>>>>>>> 27b363027e6cab5a7699df498543626d3d736485
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
+								
 								continue									
 							else: 
+								print("Failed to Evaluate Boolean: ",operation,op1,op2)
 								pass
 						
 						stack.pop(i+2)				# pop MKAY
 						stack.pop(i)				# pop ALL OF 
-						print(stack)
 						break						# break out of outer loop to refresh count
 						
 					elif end == False: valid = False
@@ -487,7 +506,10 @@ def mainBool(boolExpr,lineNumber):
 							ops = "EITHEROF"									# ANY OF is a reeated form of EITHER OF 
 							op1 = str(stack[i+1])
 							op2 = str(stack[i+3])
-	
+
+							op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
+							op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
+							
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 								for j in range(2): stack.pop(i+1)
@@ -525,8 +547,9 @@ def mainBool(boolExpr,lineNumber):
 					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value in string 
 			
 					if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-						print("here")
+					
 						answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
+						print("Answer: ",answer)
 						for j in range(3): stack.pop(anIndex-2)                  # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = answer                                # Replace OP2 with the answer
 						break									        		 # Break Iteration after an operation has completed 

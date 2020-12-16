@@ -39,7 +39,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isArithOperand(lexeme) != False:
 				lineTokens.append(('Arithmetic Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				printError("Arithmetic Operation Lexical Error: ",lineNumber)
@@ -61,7 +61,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isCompOperand(lexeme) != False:
 				lineTokens.append(('Comparison Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				printError("Comparison Operation Lexical Error ",lineNumber)
@@ -71,7 +71,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		finalAnswer = [varType,value]
 
 	# Boolean Expressions
-	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(wonof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
 
 		boolExpr = manageBoolKeywords(expr)
 
@@ -83,9 +83,12 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isBoolOperand(lexeme) != False:
 				lineTokens.append(('Boolean Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
+			elif lexeme == "MKAY":
+				lineTokens.append(('End Keyword',lexeme))
 			else :
+				print(lexeme)
 				printError("Boolean Operation Lexical Error: ",lineNumber)
 		
 		value = str(mainBool(boolExpr,lineNumber))
@@ -114,6 +117,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 	# If it doesn't match with any expression print an error 
 	else:
+		print("Invalid Expression: ",expr)
 		printError("Invalid Expression",lineNumber)
 
 	if finalAnswer != None:
@@ -225,6 +229,9 @@ def tokenizer(sourceLines,tokens):
 			if isLiteral(val) != False:
 				literalType = isLiteral(val)
 				lineTokens.append((literalType,val))
+				val = str(val)
+				varType = getVarType(val)
+				varDict[var] = [varType,val]
 			elif isVariable(val) and val in varDict:
 				varDict[var][0] = varDict[val][0]
 				varDict[var][0] = varDict[val][0] 
@@ -239,6 +246,7 @@ def tokenizer(sourceLines,tokens):
 			m = re.match(visible, line)
 			kw = m.group('kw')
 			lineTokens.append(('Print Keyword',kw))	
+<<<<<<< HEAD
 			expr = m.group('expr')
 			
 			if re.match(smoosh,expr):											#currently special case
@@ -250,6 +258,11 @@ def tokenizer(sourceLines,tokens):
 				print("=============")
 				continue
 			
+=======
+
+			expr = m.group('expr')
+			originalExpr = expr
+>>>>>>> 27b363027e6cab5a7699df498543626d3d736485
 			strList = re.findall(r"\"[^\"]*\"",expr)
 			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
 			copy = []							# Copy list used for evaluation
@@ -261,18 +274,17 @@ def tokenizer(sourceLines,tokens):
 			for string in strList:
 				lineTokens.append(("String Literal",string))
 
-			for entry in copy:											# Substitute Variables in the Statement 
+			for entry in copy:													# Substitute Variables in the Statement 
 
 				if entry in varDict and isVariable(entry):						# If it is a variable 
 					expr[copy.index(entry)] = varDict[entry][1] 				# Get the value in vardict and replace it in the original list 
 					lineTokens.append(('Variable Identfier',entry))
 
-				elif isLiteral(entry) !=  False:						# If printing a Literal
+				elif isLiteral(entry) !=  False:								# If printing a Literal
 					dataType = isLiteral(entry)
 					lineTokens.append((dataType,entry))
 				
-
-				elif isExpression(entry):								# If printing an expression 
+				elif isExpression(entry):										# If printing an expression 
 					
 					value = evaluateExpression(entry,sourceLines.index(line)+1,lineTokens)
 					varDict['IT'] = value
