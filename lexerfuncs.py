@@ -17,8 +17,7 @@ def handleComments(sourceLines):					                        # Skips the comment
 			notEndComment= True
 			continue
 		elif not notEndComment:
-			continue
-		if sourceLines[i]=='':
+			sourceLines[i]=""
 			continue
 		newSourceLines.append(sourceLines[i])
 
@@ -95,6 +94,26 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		value = str(mainBool(boolExpr,lineNumber))
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
+
+	elif re.match(smoosh,expr):
+		m = re.match(smoosh,expr)
+		kw = m.group('kw')
+		ops = m.group('ops')
+
+		ops = smooshHelper(ops)
+
+		smooshLine = []
+		smooshLine.append(('Print Keyword','VISIBLE'))
+		smooshLine.append(('Concatenate KeyWord',kw))
+		for lexeme in ops:
+			if lexeme == "AN":
+				smooshLine.append(('Operand Separator',lexeme))
+			else:
+				smooshLine.append(('Concatenation Operator',lexeme))
+		lineTokens.append(smooshLine)
+		finalAnswer = smooshExpression(ops,lineNumber)
+		varType = getVarType(finalAnswer)
+		varDict['IT'] = [varType,finalAnswer]
 
 	# If it doesn't match with any expression print an error 
 	else:
@@ -227,9 +246,17 @@ def tokenizer(sourceLines,tokens):
 			m = re.match(visible, line)
 			kw = m.group('kw')
 			lineTokens.append(('Print Keyword',kw))	
-
 			expr = m.group('expr')
-			originalExpr = expr
+			
+			if re.match(smoosh,expr):											#currently special case
+				lineTokens.pop()
+				value = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
+				tokens.append(lineTokens)
+				print("=============")
+				print("Visible: ",value)
+				print("=============")
+				continue
+			
 			strList = re.findall(r"\"[^\"]*\"",expr)
 			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
 			copy = []							# Copy list used for evaluation
@@ -349,18 +376,6 @@ def tokenizer(sourceLines,tokens):
 				else:
 					lineTokens.append(('Concatenation Operator',lexeme))
 
-			isAN = False
-			smooshOps = []
-			for lexeme in ops:
-				if isAN == False and lexeme != "AN":
-					smooshOps.append(lexeme)
-					isAN = True
-				elif isAN == True and lexeme == "AN":
-					isAN = False
-				else:
-					print(lexeme)
-					printError("Unrecognized Characters",sourceLines.index(line)+1)
-
 			finalAnswer = smooshExpression(ops,lineNumber)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
@@ -379,3 +394,4 @@ def tokenizer(sourceLines,tokens):
 		tokens.append(lineTokens)
 
 
+# fix comments all
