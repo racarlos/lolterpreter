@@ -2,7 +2,7 @@
 
 # Patterns to Match With for a lexeme
 varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"
-strIdentifier = r"^\".+\"$"
+strIdentifier = r"\".+\""
 numIdentifier = r"^[0-9]+$"
 floatIdentifier = r"^-?[0-9]+.[0-9]+$"
 troofIdentifier = r"^WIN$|^FAIL$"

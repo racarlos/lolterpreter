@@ -98,7 +98,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		printError("Invalid Expression",lineNumber)
 
 	if finalAnswer != None:
-		print("Answer to Eval Expression: ",finalAnswer)
+		#print("Answer to Eval Expression: ",finalAnswer)
 		return finalAnswer
 	else:
 		printError("Expression has no return value",lineNumber)
@@ -219,24 +219,46 @@ def tokenizer(sourceLines,tokens):
 			
 			m = re.match(visible, line)
 			kw = m.group('kw')
+			lineTokens.append(('Print Keyword',kw))	
+
+
 			expr = m.group('expr')
+			strList = re.findall(r"\"[^\"]*\"",expr)
+			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
+			copy = []							# Copy list used for evaluation
+		
+			for entry in expr: 					# Copy the trimmed strings to copy list 
+				new = re.sub(r"^\s+|\s+$", "", entry)
+				copy.append(new)
 
-			lineTokens.append(('Print Keyword',kw))
+			for string in strList:
+				lineTokens.append(("String Literal",string))
 
-			print(expr)
+			for entry in copy:											# Substitute Variables in the Statement 
 
-			# if isVariable(expr) and expr in varDict: 				# Printing Variables 
-			# 	lineTokens.append(('Variable Identfier',expr))
-			# 	print("Visible: ",varDict[expr][1])
-			# elif isString(expr): 									# Printing Plain String
-			# 	lineTokens.append(('String Literal',expr))
-			# 	print("Visible: ",expr)
-			# elif isExpression(expr) :
-			# 	message = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
-			# 	varDict['IT'] = message
-			# 	print("Visible: ",varDict['IT'][1])
-			# else :
-			# 	printError("Error at Visible Statement: ",sourceLines.index(line)+1)
+				if entry in varDict and isVariable(entry):						# If it is a variable 
+					expr[copy.index(entry)] = varDict[entry][1] 				# Get the value in vardict and replace it in the original list 
+					lineTokens.append(('Variable Identfier',entry))
+
+				elif isLiteral(entry) !=  False:						# If printing a Literal
+					dataType = isLiteral(entry)
+					lineTokens.append(('data type',entry))
+				
+
+				elif isExpression(entry):								# If printing an expression 
+					
+					value = evaluateExpression(entry,sourceLines.index(line)+1,lineTokens)
+					varDict['IT'] = value
+					strVal = str(value[1])
+					expr[copy.index(entry)] = strVal
+
+			finalStr = ""
+			for element in expr:
+				finalStr = finalStr + element
+			
+			print("=============")
+			print("Visible: ",finalStr)
+			print("=============")
 				
 		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		

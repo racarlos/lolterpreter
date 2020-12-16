@@ -67,7 +67,7 @@ def isExpression(expr):
 		print("Matched With Boolean Expression",expr)
 		return True
 	else:
-		print("Did not match with any expression",expr)
+		print("Did not match with any expression: ",expr)
 		return False
 
 def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format, Used in Operations
