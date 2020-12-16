@@ -66,6 +66,9 @@ def isExpression(expr):
 	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):
 		print("Matched With Boolean Expression",expr)
 		return True
+	elif re.match(smoosh,expr):
+		print("Matched With Concatenation Expression", expr)
+		return True
 	else:
 		print("Did not match with any expression: ",expr)
 		return False
@@ -447,7 +450,7 @@ def mainBool(boolExpr,lineNumber):
 							op2 = str(stack[i+3])
 	
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-								answer = evaluateBoolExpr(ops,op1,op2)
+								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
 								continue									
@@ -486,7 +489,7 @@ def mainBool(boolExpr,lineNumber):
 							op2 = str(stack[i+3])
 	
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
-								answer = evaluateBoolExpr(ops,op1,op2)
+								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
 								continue									
@@ -546,10 +549,18 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 		if i%2 == 1:
 			if stack[i] != "AN": printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
 		else:
-			if isLiteral(stack[i]): smooshedWords += str(stack[i])								# Literal
+			if isLiteral(stack[i]):
+				if isLiteral(stack[i]) == "String Literal":
+					smooshedWords += str(stack[i][1:-1])
+				else:
+					smooshedWords += str(stack[i])								# Literal
 			elif isVariable(stack[i]):															# Variable
 				temp = evalVar(stack[i])
-				if temp != False: smooshedWords += str(temp)
+				if temp != False: 
+					if isLiteral(stack[i]) == "String Literal":
+						smooshedWords += str(stack[i][1:-1])
+					else:
+						smooshedWords += str(stack[i])
 				else: printError(str(stack[i])+ " is not defined",lineNumber)
 			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
 	return smooshedWords
