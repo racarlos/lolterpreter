@@ -11,7 +11,7 @@ HAI 1.2
   I HAS A flag4 ITZ WIN
   
   I HAS A flag5
-  flag5 R ALL OF flag AN anotherflag AN flag3 AN flag4
+  flag5 R ALL OF flag AN anotherflag AN flag3 AN flag4 MKAY
   VISIBLE flag5
 
 KTHXBYE

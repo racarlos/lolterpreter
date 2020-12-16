@@ -27,9 +27,9 @@ for line in sourceLines:
 print("\nOutput: ")
 tokenizer(sourceLines,tokens)							# Tokenize each line	
 
-print("\nTokens: ")
-for token in tokens:
-	print(token,"\n")
+# print("\nTokens: ")
+# for token in tokens:
+# 	print(token,"\n")
 
 
 print("Variable Dictionary: ",varDict)

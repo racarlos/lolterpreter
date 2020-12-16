@@ -40,12 +40,12 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isArithOperand(lexeme) != False:
 				lineTokens.append(('Arithmetic Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				printError("Arithmetic Operation Lexical Error: ",lineNumber)
 
-		value = str(mainArith(arithExpr,lineNumber))
+		value = mainArith(arithExpr,lineNumber)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 	
@@ -62,17 +62,17 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isCompOperand(lexeme) != False:
 				lineTokens.append(('Comparison Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				printError("Comparison Operation Lexical Error ",lineNumber)
 
-		value = str(mainComp(compExpr,lineNumber))
+		value = mainComp(compExpr,lineNumber)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
 	# Boolean Expressions
-	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(wonof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
 
 		boolExpr = manageBoolKeywords(expr)
 
@@ -84,17 +84,18 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			elif isBoolOperand(lexeme) != False:
 				lineTokens.append(('Boolean Operand',lexeme))
-			elif isVariable(lexeme) and evalVar(lexeme):
+			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				printError("Boolean Operation Lexical Error: ",lineNumber)
 		
-		value = str(mainBool(boolExpr,lineNumber))
+		value = mainBool(boolExpr,lineNumber)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
 	# If it doesn't match with any expression print an error 
 	else:
+		print("Invalid Expression: ",expr)
 		printError("Invalid Expression",lineNumber)
 
 	if finalAnswer != None:
@@ -234,18 +235,17 @@ def tokenizer(sourceLines,tokens):
 			for string in strList:
 				lineTokens.append(("String Literal",string))
 
-			for entry in copy:											# Substitute Variables in the Statement 
+			for entry in copy:													# Substitute Variables in the Statement 
 
 				if entry in varDict and isVariable(entry):						# If it is a variable 
 					expr[copy.index(entry)] = varDict[entry][1] 				# Get the value in vardict and replace it in the original list 
 					lineTokens.append(('Variable Identfier',entry))
 
-				elif isLiteral(entry) !=  False:						# If printing a Literal
+				elif isLiteral(entry) !=  False:								# If printing a Literal
 					dataType = isLiteral(entry)
 					lineTokens.append(('data type',entry))
 				
-
-				elif isExpression(entry):								# If printing an expression 
+				elif isExpression(entry):										# If printing an expression 
 					
 					value = evaluateExpression(entry,sourceLines.index(line)+1,lineTokens)
 					varDict['IT'] = value
