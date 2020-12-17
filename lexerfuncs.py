@@ -5,22 +5,24 @@ from comp import *
 import os
 import sys
 
-
-def handleComments(sourceLines):					                        # Skips the comments and returns the edited file
+def handleComments(sourceLines):					                        # Replaces the comments with an empty string and returns the edited file
 	newSourceLines= []
 	notEndComment= True
 
-	for i in range(len(sourceLines)):				                        # Fix intentional comment mistake later
-		if re.match(r'.*BTW ',sourceLines[i]):
-			sourceLines[i]= re.sub(r'\s*BTW .*$', "",sourceLines[i])		# Fix match for BTW after a statement
-		elif re.match(r'\s*OBTW',sourceLines[i]):							# (OBTW(\s.*\s)*TLDR$)-----only works if comment is valid for multi line; has an end clause
+	for i in range(len(sourceLines)):
+		if re.match(r'.+OBTW',sourceLines[i]):
+			print("Error in multi-line comment: ",sourceLines[i])
+			exit(1)
+		elif re.match(r'\s*OBTW',sourceLines[i]):
 			notEndComment= False
+			sourceLines[i]=""
+		elif re.match(r'.*BTW',sourceLines[i]):
+			sourceLines[i]= re.sub(r'\s*BTW .*$', "",sourceLines[i])
 		elif re.match(r'\s*TLDR',sourceLines[i]) and not notEndComment:
 			notEndComment= True
-			continue
+			sourceLines[i]=""
 		elif not notEndComment:
 			sourceLines[i]=""
-			continue
 		newSourceLines.append(sourceLines[i])
 
 	return newSourceLines
@@ -386,7 +388,6 @@ def tokenizer(sourceLines,tokens):
 		
 		elif re.match(empty,line):
 			pass
-
 		else :
 			print(line)
 			printError("Unrecognized Pattern",sourceLines.index(line)+1)
@@ -396,5 +397,4 @@ def tokenizer(sourceLines,tokens):
 		## End
 		tokens.append(lineTokens)
 
-
-# fix comments all
+# Switch case

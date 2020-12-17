@@ -16,9 +16,13 @@ sourceLines = handleComments(sourceLines)			# Remove Comments here
 
 if not(re.match(hai,sourceLines[0])): 							# First line must be HAI
 	printError("Invalid Start of program",1)
+
+while not(re.match(kthxbye,sourceLines[-1])):
+	if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
+	else: printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE
+
 if not(re.match(kthxbye,sourceLines[-1])) : 
 	printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE 
-
 
 print("Lines: ")
 for line in sourceLines:
