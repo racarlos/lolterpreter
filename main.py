@@ -3,6 +3,7 @@ from lexerfuncs import *
 # Variables 
 tokens = []											# List of Tokens, will be appended through line tokenizer 
 sourceLines = []									# List of Lines
+visibleLines = []									# Strings to be printed per line in Visible 
 
 if len(sys.argv) < 2:								# No file called, Print Error and Exit 
 	print("Error - No File Called ")
@@ -14,8 +15,10 @@ with open(sys.argv[1]) as f:						# Read the file
 sourceLines = re.split("\n",sourceLines)			# split into list per newline
 sourceLines = handleComments(sourceLines)			# Remove Comments here 
 
-if not(re.match(hai,sourceLines[0])): 							# First line must be HAI
-	printError("Invalid Start of program",1)
+for i in range(len(sourceLines)):				# Checks if the first non comment line is HAI 
+	if re.match(empty,sourceLines[i]):	pass
+	elif re.match(hai,sourceLines[i]):	break
+	else: printError("Invalid Start of program",sourceLines.index(sourceLines[i]))
 
 while not(re.match(kthxbye,sourceLines[-1])):
 	if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
@@ -24,9 +27,10 @@ while not(re.match(kthxbye,sourceLines[-1])):
 if not(re.match(kthxbye,sourceLines[-1])) : 
 	printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE 
 
+
 print("Lines: ")
-for line in sourceLines:
-	print("- ",line)
+for i in range(len(sourceLines)):
+	print(i,"-",sourceLines[i])
 
 print("\nOutput: ")
 tokenizer(sourceLines,tokens)							# Tokenize each line	

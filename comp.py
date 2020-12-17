@@ -59,15 +59,17 @@ def mainComp(compExpr,lineNumber):
 	checkExpression(stack,"Comparison",lineNumber)
 
 	while flag == True:
-		hasError = checkStackExpr(stack,"Comparison")
-
-		if hasError == True :											  # Exit if there is an error detected 
-			printError("Error in Comparison Expression",lineNumber)
-
+	
 		if len(stack) == 1:			 # Only final answer should be left 
 			flag = False
 			finalAnswer = stack.pop(0)
 			return finalAnswer
+
+		hasError = checkStackExpr(stack,"Comparison")
+
+		if hasError == True :											  # Exit if there is an error detected 
+			print(stack)
+			printError("Error in Comparison Expression",lineNumber)
 
 		for i in range(len(stack)-1):									   # Len of Stack Refreshes after every iteration
 			char = stack[i] 
@@ -80,16 +82,18 @@ def mainComp(compExpr,lineNumber):
 					op1 = str(stack[anIndex-1])								  # Operand 1, 1 step behind AN
 					op2 = str(stack[anIndex+1])								  # Operand 2, 1 step ahead AN 
 
-					op1 = evaluateIfVar(op1)									 # Checks if the Operands are Possible Variables  
-					op2 = evaluateIfVar(op2)									 # then evaluates them to their value in string 
-		
-					if (ops in compOpsList) and isCompOperand(op1) and isCompOperand(op2):
+					op1 = str(evaluateIfVar(op1))									 # Checks if the Operands are Possible Variables  
+					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value in string 
+
+					print(ops,op1,op2)
+					if (ops in compOpsList):
 						answer = evaluateCompExpr(ops,op1,op2,lineNumber)
 						for j in range(3): stack.pop(anIndex-2)				  # Pop the Stack 3 times: Operation, OP1 , AN 
-						stack[anIndex-2] = answer								# Replace OP2 with the answer
+						stack[anIndex-2] = str(answer)								# Replace OP2 with the answer
 						break													 # Break Iteration after an operation has completed 
 					else:
 						pass
-				except: 
+				except:
+					print(stack)
 					printError("Error in Comparison Expression",lineNumber)
 			

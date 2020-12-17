@@ -53,14 +53,14 @@ def mainBool(boolExpr,lineNumber):
 	#checkExpression(stack,"Boolean")
 	while flag == True:
 
-		hasError = checkStackExpr(stack,"Boolean")
-		if hasError == True : 									  		# Exit if there is an error detected 
-			printError("Error in Boolean Expression",lineNumber)
-
 		if len(stack) == 1:                                               # Only final answer should be left 
 			flag = False
 			finalAnswer = stack.pop(0)
 			return finalAnswer
+		
+		hasError = checkStackExpr(stack,"Boolean")
+		if hasError == True : 									  		# Exit if there is an error detected 
+			printError("Error in Boolean Expression",lineNumber)
 
 		for i in range(len(stack)-1):                                     # Len of Stack Refreshes after every iteration
 			char = stack[i] 
@@ -84,6 +84,7 @@ def mainBool(boolExpr,lineNumber):
 						
 					stack.pop(i)                                            # Pop the not of
 					stack[i] = answer
+					break
 				except: 
 					pass
 
@@ -117,8 +118,9 @@ def mainBool(boolExpr,lineNumber):
 								print("Answer: ",answer)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
-								
 								continue									
+							elif op1 in boolOpsList or op2 in boolOpsList:				# Nested operands, exit to allow them to evaluate
+								exit(1)
 							else: 
 								print("Failed to Evaluate Boolean: ",operation,op1,op2)
 								pass
@@ -197,7 +199,7 @@ def mainBool(boolExpr,lineNumber):
 						answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
 						print("Answer: ",answer)
 						for j in range(3): stack.pop(anIndex-2)                  # Pop the Stack 3 times: Operation, OP1 , AN 
-						stack[anIndex-2] = answer                                # Replace OP2 with the answer
+						stack[anIndex-2] = str(answer)                                # Replace OP2 with the answer
 						break									        		 # Break Iteration after an operation has completed 
 					else:
 						pass
@@ -205,4 +207,4 @@ def mainBool(boolExpr,lineNumber):
 					pass
 
 				if valid == False: 
-					printError("Boolean Operation Syntax Error",lineNumber)
+					printError("Error in Boolean Expression",lineNumber)

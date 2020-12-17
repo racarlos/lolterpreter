@@ -10,7 +10,7 @@ def handleComments(sourceLines):					                        # Replaces the comm
 	notEndComment= True
 
 	for i in range(len(sourceLines)):
-		if re.match(r'.+OBTW',sourceLines[i]):
+		if re.match(r'[^\s]OBTW',sourceLines[i]):
 			print("Error in multi-line comment: ",sourceLines[i])
 			exit(1)
 		elif re.match(r'\s*OBTW',sourceLines[i]):
@@ -317,6 +317,7 @@ def tokenizer(sourceLines,tokens):
 			
 			# Assign Expression's return value to IT 
 			finalAnswer = mainArith(arithExpr,sourceLines.index(line)+1)
+			finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
@@ -340,11 +341,12 @@ def tokenizer(sourceLines,tokens):
 						
 			# Assign Expression's return value to IT 
 			finalAnswer = mainComp(compExpr,sourceLines.index(line)+1)
+			finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Comparison Expression: ",finalAnswer)
 
-		elif re.match(notop,line) or re.match(eitherof,line) or re.match(bothof,line) or re.match(allof,line) or re.match(anyof,line):		# Boolean operations
+		elif re.match(notop,line) or re.match(eitherof,line) or re.match(bothof,line) or re.match(wonof,line) or re.match(allof,line) or re.match(anyof,line) :		# Boolean operations
 
 			boolExpr = manageBoolKeywords(line)
 
@@ -358,11 +360,14 @@ def tokenizer(sourceLines,tokens):
 					lineTokens.append(('Boolean Operand',lexeme))
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
+				elif lexeme == "MKAY":
+					lineTokens.append(('Boolean Delimiter',lexeme))
 				else :
 					printError("Boolean Operation Lexical Error: ",sourceLines.index(line)+1)
 
 			# Assign Expression's return value to IT 
 			finalAnswer = mainBool(boolExpr,sourceLines.index(line)+1)
+			finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
@@ -382,6 +387,7 @@ def tokenizer(sourceLines,tokens):
 					lineTokens.append(('Concatenation Operator',lexeme))
 
 			finalAnswer = smooshExpression(ops,lineNumber)
+			finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("SMOOSH: "+ finalAnswer)
