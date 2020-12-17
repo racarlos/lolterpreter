@@ -38,6 +38,12 @@ wonof = r"^(\s*)(?P<kw>WON OF) (?P<op1>.+) (AN) (?P<op2>.+)(\s*)"					# XOR
 anyof = r"^(\s*)(?P<kw>ANY OF) .+(\s*)"												# Will take infinite arguments and apply AND
 allof = r"^(\s*)(?P<kw>ALL OF) .+(\s*)"												# Will take infinite arguments and apply OR
 
+# If statements
+orly = r"^(\s*)(?P<kw>O RLY\?)(\s*)$"
+yarly = r"^(\s*)(?P<kw>YA RLY)(\s*)$"
+nowai = r"^(\s*)(?P<kw>NO WAI)(\s*)$"
+oic = r"^(\s*)(?P<kw>OIC)(\s*)$"
+
 wtf = r"^WTF\?$"
 omg = r"^OMG .+"
 omgwtf = r"^OMGWTF$"
