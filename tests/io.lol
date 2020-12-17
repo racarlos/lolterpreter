@@ -1,14 +1,26 @@
-HAI 1.2
-	I HAS A num1
-	I HAS A num2
+BTW for USER INPUT/OUTPUT
+HAI
 
-	num1 R 15
+  BTW printing of literals
+  VISIBLE "henlo"
+  VISIBLE 17
+  VISIBLE 1.7
+  VISIBLE WIN
 
-	VISIBLE "Enter value for num2: "
+  BTW infinite arity printing (concat)
+  VISIBLE "hi, I'm pi. My value is " 3.14
+  VISIBLE "brrr " "baaa " "fa la la," " la la"
 
-	GIMMEH num2		BTW getting input from user
+  BTW printing of expressions
+  VISIBLE SUM OF 2 AN PRODUKT OF 3 AN 5
+  VISIBLE BOTH SAEM 2 AN 3
+  VISIBLE EITHER OF WIN AN FAIL
 
-	VISIBLE num1 " is num1"
-	VISIBLE num2 " is num2"
+  BTW printing of variables and use of GIMMEH
+  I HAS A input 
+  VISIBLE "gif imput "
+  GIMMEH input
+  VISIBLE input
+  VISIBLE "u gif meh " input "!"
 
 KTHXBYE
