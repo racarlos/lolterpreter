@@ -1,31 +1,11 @@
 from arith import *
 from booleans import *
 from comp import *
+from ifelse import *
 
 import os
 import sys
 
-def handleComments(sourceLines):					                        # Replaces the comments with an empty string and returns the edited file
-	newSourceLines= []
-	notEndComment= True
-
-	for i in range(len(sourceLines)):
-		if re.match(r'[^\s]OBTW',sourceLines[i]):
-			print("Error in multi-line comment: ",sourceLines[i])
-			exit(1)
-		elif re.match(r'\s*OBTW',sourceLines[i]):
-			notEndComment= False
-			sourceLines[i]=""
-		elif re.match(r'.*BTW',sourceLines[i]):
-			sourceLines[i]= re.sub(r'\s*BTW .*$', "",sourceLines[i])
-		elif re.match(r'\s*TLDR',sourceLines[i]) and not notEndComment:
-			notEndComment= True
-			sourceLines[i]=""
-		elif not notEndComment:
-			sourceLines[i]=""
-		newSourceLines.append(sourceLines[i])
-
-	return newSourceLines
 
 def evaluateExpression(expr,lineNumber,lineTokens):
 
@@ -68,6 +48,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
+				print(lexeme)
 				printError("Comparison Operation Lexical Error ",lineNumber)
 
 		value = str(mainComp(compExpr,lineNumber))
@@ -156,6 +137,7 @@ def smooshHelper(line):
 
 def tokenizer(sourceLines,tokens,visibleLines):
 	lineNumber = 0
+	disabled = False
 
 	for line in sourceLines:	# tokenize every line in the sourceLines 
 
@@ -206,7 +188,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			else: 
 				printError("Error in Lexer - Variable Declaration",sourceLines.index(line)+1)
 	
-		elif re.match(gimmeh,line):												# If it is an input Statement 
+		elif re.match(gimmeh,line) and disabled == False:												# If it is an input Statement 
 			m = re.match(gimmeh,line)
 			kw = m.group('kw')
 			var = m.group('var')
@@ -221,7 +203,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			else:
 				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line)+1)
 		
-		elif re.match(r,line):													# If assignment Statement
+		elif re.match(r,line) and disabled == False:													# If assignment Statement
 
 			m = re.match(r,line)
 			var = m.group('var')
@@ -247,7 +229,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			else:
 				printError("Error at R: ",sourceLines.index(line)+1)
 				
-		elif re.match(visible,line) :											# If it is a print statement 
+		elif re.match(visible,line) and disabled == False :											# If it is a print statement 
 			
 			m = re.match(visible, line)
 			kw = m.group('kw')
@@ -297,7 +279,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			
 			printLine.append(finalStr)
 
-		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
+		elif (re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line)) and disabled == False :	# Arithmetic Statement 
 		
 			arithExpr = manageArithKeywords(line)			
 			
@@ -321,7 +303,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
 
-		elif re.match(bothsaem,line) or re.match(diffrint,line) :		# Comparison Expressions 
+		elif (re.match(bothsaem,line) or re.match(diffrint,line))  and disabled == False:		# Comparison Expressions 
 
 			compExpr = manageCompKeywords(line)
 			
@@ -336,6 +318,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
+					print(lexeme)
 					printError("Comparison Operation Lexical Error ",sourceLines.index(line)+1)
 						
 			# Assign Expression's return value to IT 
@@ -345,7 +328,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Comparison Expression: ",finalAnswer)
 
-		elif re.match(notop,line) or re.match(eitherof,line) or re.match(bothof,line) or re.match(wonof,line) or re.match(allof,line) or re.match(anyof,line) :		# Boolean operations
+		elif (re.match(notop,line) or re.match(eitherof,line) or re.match(bothof,line) or re.match(wonof,line) or re.match(allof,line) or re.match(anyof,line)) and disabled == False :		# Boolean operations
 
 			boolExpr = manageBoolKeywords(line)
 
@@ -371,7 +354,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
 
-		elif re.match(smoosh,line):
+		elif re.match(smoosh,line) and disabled == False:
 			m = re.match(smoosh,line)
 			kw = m.group('kw')
 			ops = m.group('ops')
@@ -391,16 +374,54 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			varDict['IT'] = [varType,finalAnswer]
 			print("SMOOSH: "+ finalAnswer)
 		
-		elif re.match(empty,line):
+		elif re.match(orly,line):									 # Start of If statement 
+			lineTokens.append(('Start of Condtional',lexeme))
+
+			start = sourceLines.index(line)							 # Index of YA RLY, start of loop 
+
+			inds = findIndex(start,sourceLines)						# Finds the Indices of YA RLY, NO WAI, and OIC
+			ya = inds[0]
+			no = inds[1]
+			end = inds[2]
+
+			condValue = varDict['IT'][1]
+
+			if condValue == None: printError("IT has no value thus Condtional Statement, cannot be evaluated",lineNumber)
+
+			if condValue == 'WIN':		
+				print("YA RLY block will execute")
+				disabled = False		# Will Disable at NO WAI and Reenable at OIC
+			else:					
+				print("NO WAI block will execute")	
+				disabled = True			# Will Disable here and Reenable at NO WAI 
+					
+			# print("Start: ",start,sourceLines[start])
+			# print("YA: ",ya,sourceLines[ya])
+			# print("NO: ",no,sourceLines[no])
+			# print("End: ",end,sourceLines[end])	
+														
+		elif re.match(nowai,line):
+			lineTokens.append(('Conditional Else Block',line))
+			disabled = not(disabled)
+
+		elif re.match(oic,line):				# End of Loop, expression evaluation returns to normal
+			lineTokens.append(('End of Conditional',sourceLines[end]))
+			disabled = False
+
+		elif re.match(yarly,line):
+			lineTokens.append(('Conditional IF Block',line))	
+
+		elif re.match(empty,line) or disabled == True:
 			pass
+
 		else :
-			print(line)
-			printError("Unrecognized Pattern",sourceLines.index(line)+1)
+			print("Unrecognized Line: ",line)
+			printError("Unrecognized Pattern",lineNumber)
 	
 
 
 		## End
-		if len(printLine) > 0:visibleLines.append(printLine)
-		tokens.append(lineTokens)
+		if len(printLine) > 0: visibleLines.append(printLine)
+		if len(lineTokens) > 0 : tokens.append(lineTokens)
 
 # Switch case
