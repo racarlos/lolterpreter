@@ -1,4 +1,4 @@
-
+import re
 
 # Patterns to Match With for a lexeme
 varIdentifier = r"^[a-zA-Z][a-zA-Z0-9_]*$"

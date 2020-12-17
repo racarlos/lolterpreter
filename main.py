@@ -14,10 +14,10 @@ with open(sys.argv[1]) as f:						# Read the file
 sourceLines = re.split("\n",sourceLines)			# split into list per newline
 sourceLines = handleComments(sourceLines)			# Remove Comments here 
 
-if not(re.match(hai,sourceLines[0])): 
+if not(re.match(hai,sourceLines[0])): 							# First line must be HAI
 	printError("Invalid Start of program",1)
 if not(re.match(kthxbye,sourceLines[-1])) : 
-	printError("Invalid End of program",len(sourceLines))
+	printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE 
 
 
 print("Lines: ")
@@ -33,11 +33,3 @@ tokenizer(sourceLines,tokens)							# Tokenize each line
 
 
 print("Variable Dictionary: ",varDict)
-
-
-'''
-Longest Match Rule
-
-When the lexical analyzer read the source-code, it scans the code letter by letter; and when it encounters a whitespace,
-operator symbol, or special symbols, it decides that a word is completed.
-'''
