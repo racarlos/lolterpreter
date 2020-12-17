@@ -258,7 +258,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				lineTokens.pop()
 				value = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
 				tokens.append(lineTokens)
+				print("-",value,len(value))
 				printLine.append(value)
+				if len(printLine) > 0:visibleLines.append(printLine)
 				continue
 			
 			strList = re.findall(r"\"[^\"]*\"",expr)
