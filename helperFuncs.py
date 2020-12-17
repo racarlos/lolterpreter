@@ -113,13 +113,14 @@ def checkStackExpr(stack,listFlag):
 
 	try:
 		if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
-			print("Syntax Error,",listFlag," Incorrect AN Placement")
+			print("Syntax Error,",listFlag,", Incorrect AN Placement")
 			return True
 		elif not (stack[0] in operationsList):
-			print("Syntax Error,",listFlag," First Element not an Operator")
+			print(stack)
+			print("Syntax Error,",listFlag,", First Element not an Operator")
 			return True
 		elif stack[-1] in operationsList:
-			print("Syntax Error,",listFlag," Last Element is an Operator")
+			print("Syntax Error,",listFlag,", Last Element is an Operator")
 			return True
 	except:
 		pass

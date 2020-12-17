@@ -85,8 +85,8 @@ def mainComp(compExpr,lineNumber):
 					op1 = str(evaluateIfVar(op1))									 # Checks if the Operands are Possible Variables  
 					op2 = str(evaluateIfVar(op2))									 # then evaluates them to their value in string 
 
-					print(ops,op1,op2)
-					if (ops in compOpsList):
+					
+					if (ops in compOpsList) and not(op1 in compOpsList) and not(op2 in compOpsList):
 						answer = evaluateCompExpr(ops,op1,op2,lineNumber)
 						for j in range(3): stack.pop(anIndex-2)				  # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = str(answer)								# Replace OP2 with the answer
