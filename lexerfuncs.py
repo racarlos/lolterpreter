@@ -1,5 +1,7 @@
-from helperFuncs import *
-import re               # For Regex Matching 
+from arith import *
+from booleans import *
+from comp import *
+
 import os
 import sys
 
@@ -95,6 +97,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
+	# String Concatenation 
 	elif re.match(smoosh,expr):
 		m = re.match(smoosh,expr)
 		kw = m.group('kw')
