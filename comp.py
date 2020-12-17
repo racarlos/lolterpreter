@@ -88,9 +88,9 @@ def mainComp(compExpr,lineNumber):
 					
 					if (ops in compOpsList) and not(op1 in compOpsList) and not(op2 in compOpsList):
 						answer = evaluateCompExpr(ops,op1,op2,lineNumber)
-						for j in range(3): stack.pop(anIndex-2)				  # Pop the Stack 3 times: Operation, OP1 , AN 
+						for j in range(3): stack.pop(anIndex-2)				  		# Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = str(answer)								# Replace OP2 with the answer
-						break													 # Break Iteration after an operation has completed 
+						break													 	# Break Iteration after an operation has completed 
 					else:
 						pass
 				except:

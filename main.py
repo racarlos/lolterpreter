@@ -32,12 +32,16 @@ print("Lines: ")
 for i in range(len(sourceLines)):
 	print(i,"-",sourceLines[i])
 
-print("\nOutput: ")
-tokenizer(sourceLines,tokens)							# Tokenize each line	
+
+tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line	
+
+print("\nOutput: ")													# Print contents of Visible line which are the
+for element in visibleLines:										# Outputs of Visible Statements 
+	print(element)
 
 # print("\nTokens: ")
 # for token in tokens:
 # 	print(token,"\n")
 
 
-print("Variable Dictionary: ",varDict)
+#print("Variable Dictionary: ",varDict)

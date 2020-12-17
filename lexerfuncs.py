@@ -154,7 +154,7 @@ def smooshHelper(line):
 		else: modifiedLine.append(word)
 	return modifiedLine
 
-def tokenizer(sourceLines,tokens):
+def tokenizer(sourceLines,tokens,visibleLines):
 	lineNumber = 0
 
 	for line in sourceLines:	# tokenize every line in the sourceLines 
@@ -162,6 +162,7 @@ def tokenizer(sourceLines,tokens):
 		lineNumber += 1				# Increment Line Number
 		thisLine = line.split()		# List form of the line 
 		lineTokens = []
+		printLine = []				# List to append with stuff to print
 		
 		if re.match(hai,line):											# Start
 			lineTokens.append(('Program Start',line))
@@ -257,9 +258,7 @@ def tokenizer(sourceLines,tokens):
 				lineTokens.pop()
 				value = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
 				tokens.append(lineTokens)
-				print("=============")
-				print("Visible: ",value)
-				print("=============")
+				printLine.append(value)
 				continue
 			
 			strList = re.findall(r"\"[^\"]*\"",expr)
@@ -294,10 +293,8 @@ def tokenizer(sourceLines,tokens):
 			for element in expr:
 				finalStr = finalStr + element
 			
-			print("=============")
-			print("Visible: ",finalStr)
-			print("=============")
-				
+			printLine.append(finalStr)
+
 		elif re.match(sumof,line) or re.match(diffof,line) or re.match(produktof,line) or re.match(quoshuntof,line) or re.match(modof,line) or re.match(biggrof,line) or re.match(smallrof,line):	# Arithmetic Statement 
 		
 			arithExpr = manageArithKeywords(line)			
@@ -401,6 +398,7 @@ def tokenizer(sourceLines,tokens):
 
 
 		## End
+		if len(printLine) > 0:visibleLines.append(printLine)
 		tokens.append(lineTokens)
 
 # Switch case
