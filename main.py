@@ -37,11 +37,11 @@ tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line
 
 print("\nOutput: ")													# Print contents of Visible line which are the
 for element in visibleLines:										# Outputs of Visible Statements 
-	print(element)
+	print(element[0])
 
-print("\nTokens: ")
-for token in tokens:
-	print(token,"\n")
+# print("\nTokens: ")
+# for token in tokens:
+# 	print(token,"\n")
 
 
 #print("Variable Dictionary: ",varDict)

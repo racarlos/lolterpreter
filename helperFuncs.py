@@ -149,3 +149,48 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 				else: printError(str(stack[i])+ " is not defined",lineNumber)
 			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
 	return smooshedWords
+
+def handleComments(sourceLines):					                        # Replaces the comments with an empty string and returns the edited file
+	newSourceLines= []
+	notEndComment= True
+
+	for i in range(len(sourceLines)):
+		if re.match(r'[^\s]OBTW',sourceLines[i]):
+			print("Error in multi-line comment: ",sourceLines[i])
+			exit(1)
+		elif re.match(r'\s*OBTW',sourceLines[i]):
+			notEndComment= False
+			sourceLines[i]=""
+		elif re.match(r'.*BTW',sourceLines[i]):
+			sourceLines[i]= re.sub(r'\s*BTW .*$', "",sourceLines[i])
+		elif re.match(r'\s*TLDR',sourceLines[i]) and not notEndComment:
+			notEndComment= True
+			sourceLines[i]=""
+		elif not notEndComment:
+			sourceLines[i]=""
+		newSourceLines.append(sourceLines[i])
+
+	return newSourceLines
+	
+def smooshHelper(line):
+	stringOpen = r'\".+'					# string with multiple spaces
+	stringClose = r'.+\"$'
+	stringLiteral = r'\".+\"'				# string has one word
+
+	line = line.split()
+	concat = ""
+	modifiedLine = []
+	flag = False
+	for word in line:
+		if re.match(stringLiteral,word): modifiedLine.append(word)
+		elif re.match(stringOpen,word):
+			concat += (word+" ")
+			flag = True
+		elif re.match(stringClose,word):
+			concat += word
+			flag = False
+			modifiedLine.append(concat)
+			concat = ""
+		elif flag: concat += (word+" ")
+		else: modifiedLine.append(word)
+	return modifiedLine
