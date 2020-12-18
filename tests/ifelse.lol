@@ -1,7 +1,7 @@
 BTW for if-else statements
 HAI
   I HAS A a ITZ 12
-  I HAS A b ITZ 6
+  I HAS A b ITZ 5
 
   SUM OF 12 AN b
   BOTH SAEM 18 AN IT
