@@ -44,9 +44,12 @@ yarly = r"^(\s*)(?P<kw>YA RLY)(\s*)$"
 nowai = r"^(\s*)(?P<kw>NO WAI)(\s*)$"
 oic = r"^(\s*)(?P<kw>OIC)(\s*)$"
 
-wtf = r"^WTF\?$"
-omg = r"^OMG .+"
-omgwtf = r"^OMGWTF$"
+# Switch-case
+wtf = r'\s*WTF\?\s*$'
+omg = r"^(\s*)(?P<kw>OMG) (?P<lit>.+)"
+gtfo = r'\s*GTFO\s*$'
+omgwtf = r'\s*OMGWTF\s*$'
+oicswitch = r'\s*OIC\s*$'
 
 # Lists of Compatible Operands
 arithOpsList = ["SUMOF","DIFFOF","PRODUKTOF","QUOSHUNTOF","MODOF","BIGGROF","SMALLROF"]

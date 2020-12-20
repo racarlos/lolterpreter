@@ -142,10 +142,10 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 			elif isVariable(stack[i]):															# Variable
 				temp = evalVar(stack[i])
 				if temp != False: 
-					if isLiteral(stack[i]) == "String Literal":
-						smooshedWords += str(stack[i][1:-1])
+					if isLiteral(temp) == "String Literal":
+						smooshedWords += str(temp[1:-1])
 					else:
-						smooshedWords += str(stack[i])
+						smooshedWords += str(temp[i])
 				else: printError(str(stack[i])+ " is not defined",lineNumber)
 			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
 	return smooshedWords
