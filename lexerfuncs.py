@@ -138,6 +138,7 @@ def smooshHelper(line):
 def tokenizer(sourceLines,tokens,visibleLines):
 	lineNumber = 0
 	disabled = False
+	caseFlag = 1
 
 	for line in sourceLines:	# tokenize every line in the sourceLines 
 
@@ -404,8 +405,37 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			lineTokens.append(('Conditional Else Block',line))
 			disabled = not(disabled)
 
-		elif re.match(oic,line):				# End of Loop, expression evaluation returns to normal
-			lineTokens.append(('End of Conditional',sourceLines[end]))
+		elif re.match(wtf,line):
+			lineTokens.append(('Switch-case Keyword',"WTF?"))
+			condValue = varDict['IT'][1]
+			if condValue == None: printError("IT has no value thus Switch-case Statement, cannot be evaluated",lineNumber)
+			disabled = not(disabled)
+
+		elif re.match(omg,line):
+			m = re.match(omg,line)
+			kw = m.group('kw')
+			lit = m.group('lit')
+			if varDict['IT'][1] == lit:
+				lineTokens.append(('Case Keyword',kw))
+				lineTokens.append(('Literal',lit))
+				disabled = not(disabled)
+				caseFlag = True
+			else: continue
+				
+		elif re.match(gtfo,line):
+			if disabled == True: continue
+			disabled = not(disabled)
+			caseFlag = False
+			lineTokens.append(('End of Case Keyword','GTFO'))
+
+		elif re.match(omgwtf,line):
+			if caseFlag == False: continue
+			else:
+				lineTokens.append(('Default Keyword',"OMGWTF"))
+				disabled = False
+
+		elif re.match(oicswitch,line):
+			lineTokens.append(('End of Conditional',"OIC"))
 			disabled = False
 
 		elif re.match(yarly,line):
@@ -418,10 +448,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			print("Unrecognized Line: ",line)
 			printError("Unrecognized Pattern",lineNumber)
 	
-
-
+		print(line)
 		## End
 		if len(printLine) > 0: visibleLines.append(printLine)
 		if len(lineTokens) > 0 : tokens.append(lineTokens)
-
-# Switch case
