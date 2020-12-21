@@ -150,7 +150,7 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 					if isLiteral(temp) == "String Literal":
 						smooshedWords += str(temp[1:-1])
 					else:
-						smooshedWords += str(temp[i])
+						smooshedWords += str(temp)
 				else: printError(str(stack[i])+ " is not defined",lineNumber)
 			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
 	return smooshedWords
@@ -332,3 +332,7 @@ def smooshHelper(line):
 		elif flag: concat += (word+" ")
 		else: modifiedLine.append(word)
 	return modifiedLine
+
+
+# smooshExpr fix
+# 
