@@ -42,6 +42,7 @@ def evaluateCompExpr(operator,operand1,operand2,lineNumber) :
 		answer = min(operand1,operand2)
 	else:
 		printError("Error Unrecognized Comparison Operator or Invalid Pair of Operands",lineNumber)
+		return False
 
 
 	return answer

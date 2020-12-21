@@ -17,6 +17,7 @@ def evalArithOperand(operand,lineNumber):
 		else:
 			print("Operand: ",operand,"Type: ",type(operand))
 			printError("Error operand is not Numbr or Numbar",lineNumber)
+			return False
 			
 def manageArithKeywords(line):        		# Make function to convert ops to 1 word operations  EX : SUM OF - > SUMOF, Called by Main arith
 	
@@ -31,6 +32,8 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 	operand1 = evalArithOperand(operand1,lineNumber)				#handle data type of operand
 	operand2 = evalArithOperand(operand2,lineNumber)
 
+	if operand1 == False or operand2 == False: return False
+
 	if operator == "SUMOF":
 		answer = operand1 + operand2
 	elif operator == "DIFFOF":
@@ -39,7 +42,7 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 		answer = operand1 * operand2
 	elif operator == "MODOF":
 		answer = operand1 % operand2
-	elif operator == "BIGGROF":			 			# Return the bigger value
+	elif operator == "BIGGROF":			 									# Return the bigger value
 		if operand1 == operand2:											#if operands are equal returns operand1 data type and value
 			answer = operand1
 		else:
@@ -54,9 +57,11 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 			answer = operand1 / operand2
 		except ZeroDivisionError:
 			printError("Zero division error",lineNumber)
+			return False
 
 	else:
 		printError("Error Unrecognized Arithmetic Operand",lineNumber)
+		return False
 
 	return answer		# When conditions are cleared return the final answer 
 
@@ -84,6 +89,7 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 
 		if hasError == True :														  # Exit if there is an error detected 
 			printError("Error in Arithmetic Expression",lineNumber)
+			return False
 
 		for i in range(len(stack)-1):									   # Len of Stack Refreshes after every iteration
 			char = stack[i] 
@@ -101,6 +107,7 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 
 					if (ops in arithOpsList) and isArithOperand(op1) and isArithOperand(op2):
 						answer = evaluateArithExpr(ops,op1,op2,lineNumber)
+						if answer == False: return False
 						for j in range(3): stack.pop(anIndex-2)			 	   # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = str(answer)						   # Replace OP2 with the answer
 						print("Stack after Operation: ",stack)
@@ -109,4 +116,5 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 						pass
 				except:
 					printError("Error in Arithmetic Expression",lineNumber)
+					return False
 	
