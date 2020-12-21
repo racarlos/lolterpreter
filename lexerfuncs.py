@@ -1,11 +1,13 @@
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter import *
 from arith import *
 from booleans import *
 from comp import *
 from ifelse import *
-
+import settings
 import os
 import sys
-
 
 def evaluateExpression(expr,lineNumber,lineTokens):
 
@@ -28,7 +30,9 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			else :
 				printError("Arithmetic Operation Lexical Error: ",lineNumber)
 
-		value = str(mainArith(arithExpr,lineNumber))
+		value = mainArith(arithExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 	
@@ -51,7 +55,9 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				print(lexeme)
 				printError("Comparison Operation Lexical Error ",lineNumber)
 
-		value = str(mainComp(compExpr,lineNumber))
+		value = mainComp(compExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
@@ -76,7 +82,9 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				print(lexeme)
 				printError("Boolean Operation Lexical Error: ",lineNumber)
 		
-		value = str(mainBool(boolExpr,lineNumber))
+		value = mainBool(boolExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
 		varType = getVarType(value)
 		finalAnswer = [varType,value]
 
@@ -107,7 +115,6 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		printError("Invalid Expression",lineNumber)
 
 	if finalAnswer != None:
-		#print("Answer to Eval Expression: ",finalAnswer)
 		return finalAnswer
 	else:
 		printError("Expression has no return value",lineNumber)
@@ -136,16 +143,20 @@ def smooshHelper(line):
 	return modifiedLine
 
 def tokenizer(sourceLines,tokens,visibleLines):
+
 	lineNumber = 0
 	disabled = False
 	caseFlag = 1
-
-	for line in sourceLines:	# tokenize every line in the sourceLines 
+	
+	for line in sourceLines:	# tokenize every line in the sourceLines
 
 		lineNumber += 1				# Increment Line Number
 		thisLine = line.split()		# List form of the line 
 		lineTokens = []
 		printLine = []				# List to append with stuff to print
+
+		if settings.hasError == True:		# Return False if an error is detected 
+			return False
 		
 		if re.match(hai,line):											# Start
 			lineTokens.append(('Program Start',line))
@@ -182,18 +193,22 @@ def tokenizer(sourceLines,tokens,visibleLines):
 
 				elif isExpression(m[4]):
 					exprValue = evaluateExpression(m[4],sourceLines.index(line)+1,lineTokens)	# exprValue[0] = type | exprValue[0] = value 
+					if exprValue == False: return False
 					varDict[m[2]] = exprValue
 				else:
 					printError("Variable Declaration Error",sourceLines.index(line)+1)
+					return False
 					
 			else: 
 				printError("Error in Lexer - Variable Declaration",sourceLines.index(line)+1)
+				return False
 	
 		elif re.match(gimmeh,line) and disabled == False:												# If it is an input Statement 
 			m = re.match(gimmeh,line)
 			kw = m.group('kw')
 			var = m.group('var')
 			lineTokens.append(('Input KeyWord',kw))								# Gimmeh tokenized as keyword
+
 			if isVariable(var) and (var in varDict):
 				lineTokens.append(('Variable Identfier',var))					# IF variable passes, tokenized as variable identifier 
 				varVal = input()
@@ -203,6 +218,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 		
 			else:
 				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line)+1)
+				return False
 		
 		elif re.match(r,line) and disabled == False:													# If assignment Statement
 
@@ -226,9 +242,11 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				varDict[var][0] = varDict[val][0] 
 			elif isExpression(val) :
 				exprValue = evaluateExpression(val,sourceLines.index(line)+1,lineTokens)
+				if exprValue == False: return False
 				varDict[var] = exprValue
 			else:
-				printError("Error at R: ",sourceLines.index(line)+1)
+				printError("Error at assignment statement: ",sourceLines.index(line)+1)
+				return False
 				
 		elif re.match(visible,line) and disabled == False :											# If it is a print statement 
 			
@@ -240,13 +258,14 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			if re.match(smoosh,expr):											#currently special case
 				lineTokens.pop()
 				value = evaluateExpression(expr,sourceLines.index(line)+1,lineTokens)
+				if value == False: return False
 				tokens.append(lineTokens)
 				print("-",value,len(value))
 				printLine.append(value)
 				if len(printLine) > 0:visibleLines.append(printLine)
 				continue
 			
-			strList = re.findall(r"\"[^\"]*\"",expr)
+			strList = re.findall(r"\"[^\"]*\"",expr)	# Get all strings, enclosed in doublq quotes
 			expr = expr.split('"')				# Split by double quotes delimiter, original list, changes will be stored here 
 			copy = []							# Copy list used for evaluation
 		
@@ -270,6 +289,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isExpression(entry):										# If printing an expression 
 					
 					value = evaluateExpression(entry,sourceLines.index(line)+1,lineTokens)
+					if value == False: return False
 					varDict['IT'] = value
 					strVal = str(value[1])
 					expr[copy.index(entry)] = strVal
@@ -296,10 +316,12 @@ def tokenizer(sourceLines,tokens,visibleLines):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
 					printError("Arithmetic Operation Lexical Error: ",sourceLines.index(line)+1)
+					return False
 			
 			# Assign Expression's return value to IT 
 			finalAnswer = mainArith(arithExpr,sourceLines.index(line)+1)
-			finalAnswer = str(finalAnswer)
+			if finalAnswer == False: return False
+			else: finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Arithmetic Expression: ",finalAnswer)
@@ -319,12 +341,13 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					print(lexeme)
 					printError("Comparison Operation Lexical Error ",sourceLines.index(line)+1)
+					return False
 						
 			# Assign Expression's return value to IT 
 			finalAnswer = mainComp(compExpr,sourceLines.index(line)+1)
-			finalAnswer = str(finalAnswer)
+			if finalAnswer == False: return False
+			else: finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Comparison Expression: ",finalAnswer)
@@ -347,10 +370,12 @@ def tokenizer(sourceLines,tokens,visibleLines):
 					lineTokens.append(('Boolean Delimiter',lexeme))
 				else :
 					printError("Boolean Operation Lexical Error: ",sourceLines.index(line)+1)
+					return False
 
 			# Assign Expression's return value to IT 
 			finalAnswer = mainBool(boolExpr,sourceLines.index(line)+1)
-			finalAnswer = str(finalAnswer)
+			if finalAnswer == False: return False
+			else: finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("Final Answer to Boolean Expression: ",finalAnswer)
@@ -370,7 +395,8 @@ def tokenizer(sourceLines,tokens,visibleLines):
 					lineTokens.append(('Concatenation Operator',lexeme))
 
 			finalAnswer = smooshExpression(ops,lineNumber)
-			finalAnswer = str(finalAnswer)
+			if finalAnswer == False: return False
+			else: finalAnswer = str(finalAnswer)
 			varType = getVarType(finalAnswer)
 			varDict['IT'] = [varType,finalAnswer]
 			print("SMOOSH: "+ finalAnswer)
@@ -387,8 +413,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 
 			condValue = varDict['IT'][1]
 
-			if condValue == None: printError("IT has no value thus Condtional Statement, cannot be evaluated",lineNumber)
-
+			if condValue == None: 
+				printError("IT has no value thus Condtional Statement, cannot be evaluated",lineNumber)
+				return False
 			if condValue == 'WIN':		
 				print("YA RLY block will execute")
 				disabled = False		# Will Disable at NO WAI and Reenable at OIC
@@ -408,7 +435,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 		elif re.match(wtf,line):
 			lineTokens.append(('Switch-case Keyword',"WTF?"))
 			condValue = varDict['IT'][1]
-			if condValue == None: printError("IT has no value thus Switch-case Statement, cannot be evaluated",lineNumber)
+			if condValue == None: 
+				printError("IT has no value thus Switch-case Statement, cannot be evaluated",lineNumber)
+				return False
 			disabled = not(disabled)
 
 		elif re.match(omg,line):
@@ -447,8 +476,16 @@ def tokenizer(sourceLines,tokens,visibleLines):
 		else :
 			print("Unrecognized Line: ",line)
 			printError("Unrecognized Pattern",lineNumber)
+			return False
 	
 		print(line)
 		## End
 		if len(printLine) > 0: visibleLines.append(printLine)
 		if len(lineTokens) > 0 : tokens.append(lineTokens)
+
+
+
+
+
+
+

@@ -34,6 +34,7 @@ def evaluateBoolExpr(operator,operand1,operand2,lineNumber):
 		else: answer = False
 	else:
 		printError("Unrecognized boolean operator",lineNumber)
+		return False
 	
 	if answer == True: answer = "WIN"
 	elif answer == False: answer = "FAIL"
@@ -61,6 +62,7 @@ def mainBool(boolExpr,lineNumber):
 		hasError = checkStackExpr(stack,"Boolean")
 		if hasError == True : 									  		# Exit if there is an error detected 
 			printError("Error in Boolean Expression",lineNumber)
+			return False
 
 		for i in range(len(stack)-1):                                     # Len of Stack Refreshes after every iteration
 			char = stack[i] 
@@ -90,6 +92,7 @@ def mainBool(boolExpr,lineNumber):
 
 				if valid == False: 
 					printError("Invalid Not Operand",lineNumber)
+					return False
 
 			elif char == "ALLOF":                                           #  Infinite Arity And
 				valid = True
@@ -115,6 +118,7 @@ def mainBool(boolExpr,lineNumber):
 
 							if (operation in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 								answer = evaluateBoolExpr(operation,op1,op2,lineNumber)
+								if answer == False: return False
 								print("Answer: ",answer)
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
@@ -135,6 +139,7 @@ def mainBool(boolExpr,lineNumber):
 
 				if valid == False: 
 					printError("Error in All OF, matching MKAY not found.",lineNumber)
+					return False
 
 			elif char == "ANYOF":                                           	 # Infinite Arity Or
 				valid = True													
@@ -160,6 +165,7 @@ def mainBool(boolExpr,lineNumber):
 							
 							if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 								answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
+								if answer == False: return False
 								for j in range(2): stack.pop(i+1)
 								stack[i+1] = answer
 								continue									
@@ -177,6 +183,7 @@ def mainBool(boolExpr,lineNumber):
 
 				if valid == False: 
 					printError("Error in ANY OF, matching MKAY not found.",lineNumber)
+					return False
 
 			elif char == "AN":
 				valid = True
@@ -197,6 +204,7 @@ def mainBool(boolExpr,lineNumber):
 					if (ops in boolOpsList) and isBoolOperand(op1) and isBoolOperand(op2):
 					
 						answer = evaluateBoolExpr(ops,op1,op2,lineNumber)
+						if answer == False: return False
 						print("Answer: ",answer)
 						for j in range(3): stack.pop(anIndex-2)                  # Pop the Stack 3 times: Operation, OP1 , AN 
 						stack[anIndex-2] = str(answer)                                # Replace OP2 with the answer
@@ -207,4 +215,5 @@ def mainBool(boolExpr,lineNumber):
 					pass
 
 				if valid == False: 
-					printError("Error in Boolean Expression",lineNumber)
+					printError("Error incorrectly placed AN",lineNumber)
+					return False

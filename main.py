@@ -1,7 +1,5 @@
-from tkinter import ttk
-from tkinter import filedialog
-from tkinter import *
 from lexerfuncs import * 
+import settings
 
 def clearCodeEditor():               		# Function for clearing outPut and code Editor 
 	codeEditor.delete('1.0',END)
@@ -20,6 +18,9 @@ def getFile():
 	fileHandle.close() 
 
 def executeCode():
+	settings.hasError = False
+	settings.errorLine = 0 
+	settings.errorMessage = " "
 	# Reset Contents of Symbol Table and Lexemes 
 	for i in lexView.get_children():
 		lexView.delete(i)
@@ -40,9 +41,13 @@ def executeCode():
 	sourceLines = handleComments(sourceLines)							# Remove Comments here 
 
 	for i in range(len(sourceLines)):									# Checks if the first non comment line is HAI 
-		if re.match(empty,sourceLines[i]):	pass
-		elif re.match(hai,sourceLines[i]):	break
-		else: printError("Invalid Start of program",sourceLines.index(sourceLines[i]))
+		if re.match(empty,sourceLines[i]):	
+			pass
+		elif re.match(hai,sourceLines[i]):	
+			break
+		else: 
+			printError("Invalid Start of program",sourceLines.index(sourceLines[i]))
+			break
 
 	while not(re.match(kthxbye,sourceLines[-1])):						
 		if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
@@ -55,19 +60,26 @@ def executeCode():
 	for i in range(len(sourceLines)):
 		print(i,"-",sourceLines[i])
 	
-	tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line
+	value = tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line
+	print("Value: ",value)
 
-	for row in tokens:
-		for element in row:
-			lexView.insert("","end",values=(element[1],element[0]))
+	if value == False:															# An Error Has Occurred
+		errorString = "Line: " + str(settings.errorLine) + " " + str(settings.errorMessage)
+		outPut.insert(END,errorString)
+		hasError = None
 
-	for element in varDict:
-		symbolView.insert("","end",values=(element,varDict[element][1]))
-	
-	print("\nOutput: ")																	
-	for element in visibleLines:										# Display Contents of Visiblelines to the output box 
-		final = str(element.pop()) + "\n"
-		outPut.insert(END, final)
+	elif value != False:
+		for row in tokens:
+			for element in row:
+				lexView.insert("","end",values=(element[1],element[0]))
+
+		for element in varDict:
+			symbolView.insert("","end",values=(element,varDict[element][1]))
+		
+		print("\nOutput: ")																	
+		for element in visibleLines:										# Display Contents of Visiblelines to the output box 
+			final = str(element.pop()) + "\n"
+			outPut.insert(END, final)
 
 
 
@@ -122,6 +134,8 @@ lexLabel = Label(lexFrame,text="Lexemes",font=("Helvetica",15,"bold"),width=30,h
 symbolLabel = Label(symbolFrame,text="Symbol Table",font=("Helvetica",15,"bold"),width=30,height=1,bg ="dodgerblue3")
 
 buttonLabel = Label(buttonFrame,text="Buttons",bg ="dodgerblue3",font=("Helvetica",15,"bold"),width=20,height=2)
+
+## GUI Placement
 
 topMainFrame.pack(fill='both',expand=True)                                 # Top Main Frame Arrangement
 codeFrame.grid(row=0,column=0,padx=10,pady=5)

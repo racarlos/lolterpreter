@@ -1,4 +1,5 @@
 from patterns import * 
+import settings
 
 # Global Lists
 varDict = {'IT':[None,None]} 
@@ -8,7 +9,11 @@ def printError(message,lineNumber):
 		print(message)
 	else:
 		print("Line:",lineNumber,"",message)
-	exit(1)
+
+	settings.hasError = True
+	settings.errorMessage = message
+	settings.errorLine = lineNumber
+
 
 def isVariable(var):					# Checks if the given parameter fits as a variable identifier 
 	if re.match(varIdentifier,var):
