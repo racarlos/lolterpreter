@@ -18,6 +18,8 @@ def getFile():
 	fileHandle.close() 
 
 def executeCode():
+	outPut.configure(state="normal")
+
 	settings.hasError = False
 	settings.errorLine = 0 
 	settings.errorMessage = " "
@@ -30,7 +32,7 @@ def executeCode():
 
 	# Clear Output
 	clearOutputBox()
-
+	
 	# Variables
 	tokens = []															# List of Tokens, will be appended through line tokenizer 
 	sourceLines = []													# List of Lines
@@ -68,6 +70,7 @@ def executeCode():
 		outPut.insert(END,errorString)
 		hasError = None
 
+
 	elif value != False:
 		for row in tokens:
 			for element in row:
@@ -75,11 +78,12 @@ def executeCode():
 
 		for element in varDict:
 			symbolView.insert("","end",values=(element,varDict[element][1]))
-		
-		print("\nOutput: ")																	
+																
 		for element in visibleLines:										# Display Contents of Visiblelines to the output box 
 			final = str(element.pop()) + "\n"
 			outPut.insert(END, final)
+
+	outPut.configure(state="disabled")
 
 
 
@@ -127,7 +131,7 @@ clearEditorButton = Button(buttonFrame, text="Clear Editor",bd=3,command=clearCo
 clearOutputButton = Button(buttonFrame, text="Clear Output",bd=3,command=clearOutputBox ,borderwidth = 2,bg ="SlateGray1",width=20,height=2)
 
 outFrame = LabelFrame(bottomMainFrame,bg="dodgerblue3",height=300,borderwidth = 2,) 
-outPut = Text(outFrame,width=110,height=16,font=("Helvetica",12,"bold"),background="LightSteelBlue4",selectbackground="DodgerBlue2",selectforeground="black")
+outPut = Text(outFrame,width=110,height=16,font=("Helvetica",12,"bold"),background="LightSteelBlue4",selectbackground="dodgerblue3",selectforeground="black",state="disabled")
 
 codeLabel = Label(codeFrame,text="Code Editor",font=("Helvetica",15,"bold"),width=30,height=1,bg ="dodgerblue3")
 lexLabel = Label(lexFrame,text="Lexemes",font=("Helvetica",15,"bold"),width=30,height=1,bg ="dodgerblue3")

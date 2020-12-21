@@ -5,6 +5,7 @@ from arith import *
 from booleans import *
 from comp import *
 from ifelse import *
+from helperFuncs import *
 import settings
 import os
 import sys
@@ -119,28 +120,6 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 	else:
 		printError("Expression has no return value",lineNumber)
 
-def smooshHelper(line):
-	stringOpen = r'\".+'					# string with multiple spaces
-	stringClose = r'.+\"$'
-	stringLiteral = r'\".+\"'				# string has one word
-
-	line = line.split()
-	concat = ""
-	modifiedLine = []
-	flag = False
-	for word in line:
-		if re.match(stringLiteral,word): modifiedLine.append(word)
-		elif re.match(stringOpen,word):
-			concat += (word+" ")
-			flag = True
-		elif re.match(stringClose,word):
-			concat += word
-			flag = False
-			modifiedLine.append(concat)
-			concat = ""
-		elif flag: concat += (word+" ")
-		else: modifiedLine.append(word)
-	return modifiedLine
 
 def tokenizer(sourceLines,tokens,visibleLines):
 
@@ -211,11 +190,25 @@ def tokenizer(sourceLines,tokens,visibleLines):
 
 			if isVariable(var) and (var in varDict):
 				lineTokens.append(('Variable Identfier',var))					# IF variable passes, tokenized as variable identifier 
-				varVal = input()
-				varVal = str(varVal)
-				varType = getVarType(varVal)
-				varDict[var] = [varType,varVal]
-		
+				
+				def getInput():
+					inputLine = e.get()
+					varType = getVarType(inputLine)								# Put to Variable Dictionary 
+					varDict[var] = [varType,inputLine]
+					print(varDict[var])
+					new.quit()
+				
+				new = Tk()	
+				l = Label(new,width=20,bg="dodgerblue3",text="Enter Input")
+				e = Entry(new,width=20,fg="black",borderwidth=5)
+				b = Button(new,width=10,text="Submit",bg ="SlateGray1",command=getInput)
+
+				l.pack()
+				e.pack()
+				b.pack()
+
+				new.mainloop()
+
 			else:
 				printError("Error at Gimmeh, Variable Not Found",sourceLines.index(line)+1)
 				return False
@@ -422,11 +415,6 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			else:					
 				print("NO WAI block will execute")	
 				disabled = True			# Will Disable here and Reenable at NO WAI 
-					
-			# print("Start: ",start,sourceLines[start])
-			# print("YA: ",ya,sourceLines[ya])
-			# print("NO: ",no,sourceLines[no])
-			# print("End: ",end,sourceLines[end])	
 														
 		elif re.match(nowai,line):
 			lineTokens.append(('Conditional Else Block',line))
@@ -474,7 +462,6 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			pass
 
 		else :
-			print("Unrecognized Line: ",line)
 			printError("Unrecognized Pattern",lineNumber)
 			return False
 	

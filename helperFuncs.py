@@ -199,3 +199,136 @@ def smooshHelper(line):
 		elif flag: concat += (word+" ")
 		else: modifiedLine.append(word)
 	return modifiedLine
+
+def evaluateExpression(expr,lineNumber,lineTokens):
+
+	finalAnswer = None						# Final answer is value of the expression to be returned
+	# Arithmetic Expressions
+	if re.match(sumof,expr) or re.match(diffof,expr) or re.match(produktof,expr) or re.match(quoshuntof,expr) or re.match(modof,expr) or re.match(biggrof,expr) or re.match(smallrof,expr):
+
+		arithExpr = manageArithKeywords(expr)			
+		
+		for lexeme in arithExpr:
+
+			if lexeme in arithOpsList:								# If the lexeme is an arith operator (SUMOF,DIFFOF)	
+				lineTokens.append(('Arithmetic Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isArithOperand(lexeme) != False:
+				lineTokens.append(('Arithmetic Operand',lexeme))
+			elif isVariable(lexeme) and lexeme in varDict:
+				lineTokens.append(('Variable Identfier',lexeme))
+			else :
+				printError("Arithmetic Operation Lexical Error: ",lineNumber)
+
+		value = mainArith(arithExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+	
+	# Comparison Expressions
+	elif re.match(bothsaem,expr) or re.match(diffrint,expr):
+
+		compExpr = manageCompKeywords(expr)
+			
+		for lexeme in compExpr:
+
+			if lexeme in compOpsList:
+				lineTokens.append(('Comparison Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isCompOperand(lexeme) != False:
+				lineTokens.append(('Comparison Operand',lexeme))
+			elif isVariable(lexeme) and lexeme in varDict:
+				lineTokens.append(('Variable Identfier',lexeme))
+			else :
+				print(lexeme)
+				printError("Comparison Operation Lexical Error ",lineNumber)
+
+		value = mainComp(compExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+
+	# Boolean Expressions
+	elif re.match(notop,expr) or re.match(eitherof,expr) or re.match(wonof,expr) or re.match(bothof,expr) or re.match(allof,expr) or re.match(anyof,expr):	
+
+		boolExpr = manageBoolKeywords(expr)
+
+		for lexeme in boolExpr:
+
+			if lexeme in boolOpsList:
+				lineTokens.append(('Boolean Operator',lexeme))
+			elif lexeme == "AN":
+				lineTokens.append(('Operand Separator',lexeme))
+			elif isBoolOperand(lexeme) != False:
+				lineTokens.append(('Boolean Operand',lexeme))
+			elif isVariable(lexeme) and lexeme in varDict:
+				lineTokens.append(('Variable Identfier',lexeme))
+			elif lexeme == "MKAY":
+				lineTokens.append(('End Keyword',lexeme))
+			else :
+				print(lexeme)
+				printError("Boolean Operation Lexical Error: ",lineNumber)
+		
+		value = mainBool(boolExpr,lineNumber)
+		if value == False: return False
+		else: value = str(value)
+		varType = getVarType(value)
+		finalAnswer = [varType,value]
+
+	# String Concatenation 
+	elif re.match(smoosh,expr):
+		m = re.match(smoosh,expr)
+		kw = m.group('kw')
+		ops = m.group('ops')
+
+		ops = smooshHelper(ops)
+
+		smooshLine = []
+		smooshLine.append(('Print Keyword','VISIBLE'))
+		smooshLine.append(('Concatenate KeyWord',kw))
+		for lexeme in ops:
+			if lexeme == "AN":
+				smooshLine.append(('Operand Separator',lexeme))
+			else:
+				smooshLine.append(('Concatenation Operator',lexeme))
+		lineTokens.append(smooshLine)
+		finalAnswer = smooshExpression(ops,lineNumber)
+		varType = getVarType(finalAnswer)
+		varDict['IT'] = [varType,finalAnswer]
+
+	# If it doesn't match with any expression print an error 
+	else:
+		print("Invalid Expression: ",expr)
+		printError("Invalid Expression",lineNumber)
+
+	if finalAnswer != None:
+		return finalAnswer
+	else:
+		printError("Expression has no return value",lineNumber)
+
+def smooshHelper(line):
+	stringOpen = r'\".+'					# string with multiple spaces
+	stringClose = r'.+\"$'
+	stringLiteral = r'\".+\"'				# string has one word
+
+	line = line.split()
+	concat = ""
+	modifiedLine = []
+	flag = False
+	for word in line:
+		if re.match(stringLiteral,word): modifiedLine.append(word)
+		elif re.match(stringOpen,word):
+			concat += (word+" ")
+			flag = True
+		elif re.match(stringClose,word):
+			concat += word
+			flag = False
+			modifiedLine.append(concat)
+			concat = ""
+		elif flag: concat += (word+" ")
+		else: modifiedLine.append(word)
+	return modifiedLine
