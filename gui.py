@@ -2,15 +2,27 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import *
 
+def clearCodeEditor():               # Function for clearing outPut and code Editor 
+    codeEditor.delete('1.0',END)
+
+def clearOutputBox():
+    outPut.delete('1.0',END)
 
 def getFile():
-    root.fileName = filedialog.askopenfilename(filetypes=[("LOL File", "*.lol")], initialdir="tests/",title = "Select a LOL Code File")     # Get the LOL File 
+    clearCodeEditor()
+    fileName = filedialog.askopenfilename(filetypes=[("LOL File", "*.lol")], initialdir="tests/",title = "Select a LOL Code File")     # Get the LOL File 
+    print("File Name: ",fileName)
+    fileHandle = open(fileName,"r+") # Read and write 
+    fileContent = fileHandle.read()
 
-def clearCodeFrame():
-    pass
+    codeEditor.insert(END, fileContent)
+    fileHandle.close() 
+
 
 def executeCode():
-    pass
+    inputValue=codeEditor.get("1.0","end-1c")
+    print("Input Value: ",type(inputValue))
+
 
 
 
@@ -23,7 +35,7 @@ topMainFrame = LabelFrame(root,bg="gray17")
 
 codeFrame = LabelFrame(topMainFrame,relief='flat',borderwidth=3,bg="dodgerblue3")                   # Code Editor Frame
 codeScroll = Scrollbar(codeFrame,orient ="vertical")
-codeEditor = Text(codeFrame,width=50,height=17,font=("Helvetica",12),background="LightSteelBlue4",selectbackground="DodgerBlue2",selectforeground="black",undo=True,yscrollcommand=codeScroll.set)
+codeEditor = Text(codeFrame,width=60,height=20,font=("Helvetica",10),background="LightSteelBlue4",selectbackground="DodgerBlue2",selectforeground="black",undo=True,yscrollcommand=codeScroll.set)
 
 symbolFrame = LabelFrame(topMainFrame,relief='flat',borderwidth=3,bg="dodgerblue3")                # Lexemes Frame 
 symbolView = ttk.Treeview(symbolFrame, selectmode="browse",height=18)
@@ -50,9 +62,10 @@ lexView.configure(yscrollcommand = lexScroll.set)
 bottomMainFrame = LabelFrame(root,bg="gray17")  
 
 buttonFrame = LabelFrame(bottomMainFrame,bg="dodgerblue3",padx=50,pady=10,height=12) 
-fileButton = Button(buttonFrame, text="Select File",bd=3,command=getFile, borderwidth = 2,bg ="SlateGray1",width=20,height=3)            # Button Used for Getting a LOL File
-execButton = Button(buttonFrame, text="Execute ",bd=3,command=executeCode, borderwidth = 2,bg ="SlateGray1",width=20,height=3)           # Button for executing code in the code frame
-clearButton = Button(buttonFrame, text="Clear Editor",bd=3,command=clearCodeFrame ,borderwidth = 2,bg ="SlateGray1",width=20,height=3)   # Button for Clearing the code frame 
+fileButton = Button(buttonFrame, text="Select File",bd=3,command=getFile, borderwidth = 2,bg ="SlateGray1",width=20,height=2)            # Button Used for Getting a LOL File
+execButton = Button(buttonFrame, text="Execute ",bd=3,command=executeCode, borderwidth = 2,bg ="SlateGray1",width=20,height=2)           # Button for executing code in the code frame
+clearEditorButton = Button(buttonFrame, text="Clear Editor",bd=3,command=clearCodeEditor ,borderwidth = 2,bg ="SlateGray1",width=20,height=2)   # Button for Clearing the code frame 
+clearOutputButton = Button(buttonFrame, text="Clear Output",bd=3,command=clearOutputBox ,borderwidth = 2,bg ="SlateGray1",width=20,height=2)
 
 outFrame = LabelFrame(bottomMainFrame,bg="dodgerblue3",height=300,borderwidth = 2,) 
 outPut = Text(outFrame,width=110,height=16,font=("Helvetica",12,"bold"),background="LightSteelBlue4",selectbackground="DodgerBlue2",selectforeground="black")
@@ -61,7 +74,7 @@ codeLabel = Label(codeFrame,text="Code Editor",font=("Helvetica",15,"bold"),widt
 lexLabel = Label(lexFrame,text="Lexemes",font=("Helvetica",15,"bold"),width=30,height=1,bg ="dodgerblue3")
 symbolLabel = Label(symbolFrame,text="Symbol Table",font=("Helvetica",15,"bold"),width=30,height=1,bg ="dodgerblue3")
 
-buttonLabel = Label(buttonFrame,text="Buttons",bg ="LightSteelBlue4",font=("Helvetica",15,"bold"),width=20,height=2)
+buttonLabel = Label(buttonFrame,text="Buttons",bg ="dodgerblue3",font=("Helvetica",15,"bold"),width=20,height=2)
 
 topMainFrame.pack(fill='both',expand=True)                                 # Top Main Frame Arrangement
 codeFrame.grid(row=0,column=0,padx=10,pady=5)
@@ -84,6 +97,7 @@ bottomMainFrame.pack(fill='both',expand=True)                            # Botto
 buttonFrame.grid_rowconfigure(0,weight=1)
 buttonFrame.grid_rowconfigure(1,weight=1)
 buttonFrame.grid_rowconfigure(2,weight=1)
+buttonFrame.grid_rowconfigure(3,weight=1)
 buttonFrame.grid(row=0,column=0,padx=5,pady=10)
 outFrame.grid(row=0,column=1,columnspan=2,padx=5,pady=10)
 
@@ -92,10 +106,11 @@ outFrame.grid(row=0,column=1,columnspan=2,padx=5,pady=10)
 
 outPut.pack(side="left",fill="both",padx=5,pady=5)
 
-buttonLabel.grid(row=0,padx=8,pady=10)                                  # Button Frame Arrangement 
+buttonLabel.grid(row=0,padx=8)                                  # Button Frame Arrangement 
 fileButton.grid(row=1,padx=8,pady=10)
 execButton.grid(row=2,padx=8,pady=10)
-clearButton.grid(row=3,padx=8,pady=10)
+clearEditorButton.grid(row=3,padx=8,pady=10)
+clearOutputButton.grid(row=4,padx=8,pady=10)
 
 
 
