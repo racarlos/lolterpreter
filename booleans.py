@@ -59,7 +59,7 @@ def mainBool(boolExpr,lineNumber):
 			finalAnswer = stack.pop(0)
 			return finalAnswer
 		
-		hasError = checkStackExpr(stack,"Boolean")
+		hasError = checkStackExpr(stack,"Boolean",lineNumber)
 		if hasError == True : 									  		# Exit if there is an error detected 
 			printError("Error in Boolean Expression",lineNumber)
 			return False

@@ -57,7 +57,8 @@ def mainComp(compExpr,lineNumber):
 		new = compExpr.pop(0)
 		stack.append(new)   
 	
-	checkExpression(stack,"Comparison",lineNumber)
+	errVal = checkExpression(stack,"Comparison",lineNumber)
+	if errVal == False: return errVal															# If it's false, moves on to error
 
 	while flag == True:
 	

@@ -76,7 +76,8 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 		stack.append(new)   
 
 	# Error Detection here
-	checkExpression(stack,"Arithmetic",lineNumber)										#Exits if it encounters an error
+	errVal = checkExpression(stack,"Arithmetic",lineNumber)										# Exits if it encounters an error
+	if errVal == False: return errVal															# If it's false, moves on to error
 
 	while flag == True:
 
