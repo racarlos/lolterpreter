@@ -105,6 +105,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			else:
 				lineTokens.append(('Concatenation Operator',lexeme))
 		finalAnswer = smooshExpression(ops,lineNumber)
+		if finalAnswer == False: return False
 		varType = getVarType(finalAnswer)
 		varDict['IT'] = [varType,finalAnswer]
 
@@ -117,6 +118,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		return finalAnswer
 	else:
 		printError("Expression has no return value",lineNumber)
+		return False
 
 
 def tokenizer(sourceLines,tokens,visibleLines):

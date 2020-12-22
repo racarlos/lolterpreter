@@ -108,6 +108,8 @@ def checkExpression(stack,listFlag,lineNumber):	#checks the stack if it's balanc
 	#break for ALL OF and ANY OF
 	if countArithKey != countAnKey:
 		printError("Error: Unbalanced pairs of Arithmetic Operands and Operators",lineNumber)
+		return False
+	return None
 
 #constantly checks within the loop the stack and the series of elements in it
 def checkStackExpr(stack,listFlag,lineNumber):
@@ -141,9 +143,16 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 
 	for i in range(len(stack)):
 		if i%2 == 1:
-			if stack[i] != "AN": printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
+			if stack[i] != "AN": 
+				printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
+				return False
 		else:
-			if stack[i] == "IT" and stack[i] != None: smooshedWords += str(varDict["IT"][1])
+			if stack[i] == "IT": 
+				if varDict["IT"][1] != None:
+					smooshedWords += str(varDict["IT"][1])
+				else:
+					printError("IT has a None value",lineNumber) 
+					return False
 			elif isLiteral(stack[i]):
 				if isLiteral(stack[i]) == "String Literal":
 					smooshedWords += str(stack[i][1:-1])
@@ -156,8 +165,12 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 						smooshedWords += str(temp[1:-1])
 					else:
 						smooshedWords += str(temp)
-				else: printError(str(stack[i])+ " is not defined",lineNumber)
-			else: printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
+				else: 
+					printError(str(stack[i])+ " is not defined",lineNumber)
+					return False
+			else: 
+				printError(str(stack[i])+ ": invalid element in SMOOSH",lineNumber)
+				return False
 	return smooshedWords
 
 def handleComments(sourceLines):					                        # Replaces the comments with an empty string and returns the edited file
@@ -287,7 +300,6 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 		ops = smooshHelper(ops)
 
-		#smooshLine = []
 		lineTokens.append(('Print Keyword','VISIBLE'))
 		lineTokens.append(('Concatenate Keyword',kw))
 		for lexeme in ops:
@@ -295,9 +307,8 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Operand Separator',lexeme))
 			else:
 				lineTokens.append(('Concatenation Operator',lexeme))
-		#lineTokens.append(smooshLine)
-		print(lineTokens)
 		finalAnswer = smooshExpression(ops,lineNumber)
+		if finalAnswer == False: return False
 		varType = getVarType(finalAnswer)
 		varDict['IT'] = [varType,finalAnswer]
 
@@ -305,8 +316,10 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 	else:
 		print("Invalid Expression: ",expr)
 		printError("Invalid Expression",lineNumber)
+		return False
 
 	if finalAnswer != None:
 		return finalAnswer
 	else:
 		printError("Expression has no return value",lineNumber)
+		return False
