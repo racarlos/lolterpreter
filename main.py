@@ -70,7 +70,6 @@ def executeCode():
 		outPut.insert(END,errorString)
 		hasError = None
 
-
 	elif value != False:
 		for row in tokens:
 			for element in row:
