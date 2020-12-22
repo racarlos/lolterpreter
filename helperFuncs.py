@@ -110,7 +110,7 @@ def checkExpression(stack,listFlag,lineNumber):	#checks the stack if it's balanc
 		printError("Error: Unbalanced pairs of Arithmetic Operands and Operators",lineNumber)
 
 #constantly checks within the loop the stack and the series of elements in it
-def checkStackExpr(stack,listFlag):
+def checkStackExpr(stack,listFlag,lineNumber):
 	operationsList= None
 	if listFlag == "Arithmetic": operationsList = arithOpsList
 	elif listFlag == "Boolean": operationsList = boolOpsList
@@ -118,17 +118,21 @@ def checkStackExpr(stack,listFlag):
 
 	try:
 		if stack[-1] == "AN" or stack[0] == "AN" or stack[1] == "AN":
-			print("Syntax Error,",listFlag,", Incorrect AN Placement")
+			message = "Syntax Error," + listFlag + ", Incorrectly Placed AN"
+			printError(message,lineNumber)
 			return True
 		elif not (stack[0] in operationsList):
-			print(stack)
-			print("Syntax Error,",listFlag,", First Element not an Operator")
+			message = "Syntax Error," + listFlag + ", First Element is not an Operator"
+			printError(message,lineNumber)
 			return True
 		elif stack[-1] in operationsList:
-			print("Syntax Error,",listFlag,", Last Element is an Operator")
+			message = "Syntax Error," + listFlag + ", Last Element is an Operator"
+			printError(message,lineNumber)
 			return True
 	except:
 		pass
+
+	return False 
 
 
 def smooshExpression(stack,lineNumber):															# return the concatenated string

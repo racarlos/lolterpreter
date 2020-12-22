@@ -195,7 +195,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 					inputLine = e.get()
 					varType = getVarType(inputLine)								# Put to Variable Dictionary 
 					varDict[var] = [varType,inputLine]
-					print(varDict[var])
+					strMsg = "Received: " + inputLine
+					l.configure(text = strMsg)									# Change label to confirm input reception
+					b.configure(state="disabled")								# Disable Submit button
 					new.quit()
 				
 				new = Tk()	
