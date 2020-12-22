@@ -133,13 +133,16 @@ def checkStackExpr(stack,listFlag):
 
 def smooshExpression(stack,lineNumber):															# return the concatenated string
 	smooshedWords = ""
+	print(stack,varDict["IT"])
 	if stack[-1] == "AN": printError("Incomplete number of items to SMOOSH",lineNumber)			# Hanging AN keyword
 
 	for i in range(len(stack)):
 		if i%2 == 1:
+			print(stack[i],stack)
 			if stack[i] != "AN": printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
 		else:
-			if isLiteral(stack[i]):
+			if stack[i] == "IT" and stack[i] != None: smooshedWords += str(varDict["IT"][1])
+			elif isLiteral(stack[i]):
 				if isLiteral(stack[i]) == "String Literal":
 					smooshedWords += str(stack[i][1:-1])
 				else:
@@ -178,26 +181,21 @@ def handleComments(sourceLines):					                        # Replaces the comm
 	return newSourceLines
 	
 def smooshHelper(line):
-	stringOpen = r'\".+'					# string with multiple spaces
-	stringClose = r'.+\"$'
-	stringLiteral = r'\".+\"'				# string has one word
+	string = False
 
-	line = line.split()
-	concat = ""
 	modifiedLine = []
-	flag = False
-	for word in line:
-		if re.match(stringLiteral,word): modifiedLine.append(word)
-		elif re.match(stringOpen,word):
-			concat += (word+" ")
-			flag = True
-		elif re.match(stringClose,word):
-			concat += word
-			flag = False
-			modifiedLine.append(concat)
-			concat = ""
-		elif flag: concat += (word+" ")
-		else: modifiedLine.append(word)
+	wordLetters = ''
+	for letter in line:
+		if letter == '"' or string:
+			wordLetters += letter
+			if not string or letter == '"':
+				string = not(string)
+		elif letter == " ":
+			modifiedLine.append(wordLetters)
+			wordLetters = ''
+		else:
+			wordLetters += letter
+	if wordLetters != '': modifiedLine.append(wordLetters)
 	return modifiedLine
 
 def evaluateExpression(expr,lineNumber,lineTokens):
@@ -309,30 +307,3 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 		return finalAnswer
 	else:
 		printError("Expression has no return value",lineNumber)
-
-def smooshHelper(line):
-	stringOpen = r'\".+'					# string with multiple spaces
-	stringClose = r'.+\"$'
-	stringLiteral = r'\".+\"'				# string has one word
-
-	line = line.split()
-	concat = ""
-	modifiedLine = []
-	flag = False
-	for word in line:
-		if re.match(stringLiteral,word): modifiedLine.append(word)
-		elif re.match(stringOpen,word):
-			concat += (word+" ")
-			flag = True
-		elif re.match(stringClose,word):
-			concat += word
-			flag = False
-			modifiedLine.append(concat)
-			concat = ""
-		elif flag: concat += (word+" ")
-		else: modifiedLine.append(word)
-	return modifiedLine
-
-
-# smooshExpr fix
-# 
