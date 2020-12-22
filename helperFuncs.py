@@ -137,12 +137,10 @@ def checkStackExpr(stack,listFlag,lineNumber):
 
 def smooshExpression(stack,lineNumber):															# return the concatenated string
 	smooshedWords = ""
-	print(stack,varDict["IT"])
 	if stack[-1] == "AN": printError("Incomplete number of items to SMOOSH",lineNumber)			# Hanging AN keyword
 
 	for i in range(len(stack)):
 		if i%2 == 1:
-			print(stack[i],stack)
 			if stack[i] != "AN": printError("Mismatched items in SMOOSH",lineNumber)			# AN delimeter
 		else:
 			if stack[i] == "IT" and stack[i] != None: smooshedWords += str(varDict["IT"][1])
@@ -221,7 +219,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
-				printError("Arithmetic Operation Lexical Error: ",lineNumber)
+				printError("Arithmetic Operation Lexical Error",lineNumber)
 
 		value = mainArith(arithExpr,lineNumber)
 		if value == False: return False
@@ -246,7 +244,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				print(lexeme)
-				printError("Comparison Operation Lexical Error ",lineNumber)
+				printError("Comparison Operation Lexical Error",lineNumber)
 
 		value = mainComp(compExpr,lineNumber)
 		if value == False: return False
@@ -273,7 +271,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('End Keyword',lexeme))
 			else :
 				print(lexeme)
-				printError("Boolean Operation Lexical Error: ",lineNumber)
+				printError("Boolean Operation Lexical Error",lineNumber)
 		
 		value = mainBool(boolExpr,lineNumber)
 		if value == False: return False
@@ -289,15 +287,16 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 		ops = smooshHelper(ops)
 
-		smooshLine = []
-		smooshLine.append(('Print Keyword','VISIBLE'))
-		smooshLine.append(('Concatenate KeyWord',kw))
+		#smooshLine = []
+		lineTokens.append(('Print Keyword','VISIBLE'))
+		lineTokens.append(('Concatenate Keyword',kw))
 		for lexeme in ops:
 			if lexeme == "AN":
-				smooshLine.append(('Operand Separator',lexeme))
+				lineTokens.append(('Operand Separator',lexeme))
 			else:
-				smooshLine.append(('Concatenation Operator',lexeme))
-		lineTokens.append(smooshLine)
+				lineTokens.append(('Concatenation Operator',lexeme))
+		#lineTokens.append(smooshLine)
+		print(lineTokens)
 		finalAnswer = smooshExpression(ops,lineNumber)
 		varType = getVarType(finalAnswer)
 		varDict['IT'] = [varType,finalAnswer]

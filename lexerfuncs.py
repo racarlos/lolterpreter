@@ -29,7 +29,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
-				printError("Arithmetic Operation Lexical Error: ",lineNumber)
+				printError("Arithmetic Operation Lexical Error",lineNumber)
 
 		value = mainArith(arithExpr,lineNumber)
 		if value == False: return False
@@ -54,7 +54,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
 				print(lexeme)
-				printError("Comparison Operation Lexical Error ",lineNumber)
+				printError("Comparison Operation Lexical Error",lineNumber)
 
 		value = mainComp(compExpr,lineNumber)
 		if value == False: return False
@@ -81,7 +81,7 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 				lineTokens.append(('End Keyword',lexeme))
 			else :
 				print(lexeme)
-				printError("Boolean Operation Lexical Error: ",lineNumber)
+				printError("Boolean Operation Lexical Error",lineNumber)
 		
 		value = mainBool(boolExpr,lineNumber)
 		if value == False: return False
@@ -97,15 +97,13 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 		ops = smooshHelper(ops)
 
-		smooshLine = []
-		smooshLine.append(('Print Keyword','VISIBLE'))
-		smooshLine.append(('Concatenate KeyWord',kw))
+		lineTokens.append(('Print Keyword','VISIBLE'))
+		lineTokens.append(('Concatenate Keyword',kw))
 		for lexeme in ops:
 			if lexeme == "AN":
-				smooshLine.append(('Operand Separator',lexeme))
+				lineTokens.append(('Operand Separator',lexeme))
 			else:
-				smooshLine.append(('Concatenation Operator',lexeme))
-		lineTokens.append(smooshLine)
+				lineTokens.append(('Concatenation Operator',lexeme))
 		finalAnswer = smooshExpression(ops,lineNumber)
 		varType = getVarType(finalAnswer)
 		varDict['IT'] = [varType,finalAnswer]
@@ -240,7 +238,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				if exprValue == False: return False
 				varDict[var] = exprValue
 			else:
-				printError("Error at assignment statement: ",sourceLines.index(line)+1)
+				printError("Error at assignment statement",sourceLines.index(line)+1)
 				return False
 				
 		elif re.match(visible,line) and disabled == False :											# If it is a print statement 
@@ -310,7 +308,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Arithmetic Operation Lexical Error: ",sourceLines.index(line)+1)
+					printError("Arithmetic Operation Lexical Error",sourceLines.index(line)+1)
 					return False
 			
 			# Assign Expression's return value to IT 
@@ -336,7 +334,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Comparison Operation Lexical Error ",sourceLines.index(line)+1)
+					printError("Comparison Operation Lexical Error",sourceLines.index(line)+1)
 					return False
 						
 			# Assign Expression's return value to IT 
@@ -364,7 +362,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif lexeme == "MKAY":
 					lineTokens.append(('Boolean Delimiter',lexeme))
 				else :
-					printError("Boolean Operation Lexical Error: ",sourceLines.index(line)+1)
+					printError("Boolean Operation Lexical Error",sourceLines.index(line)+1)
 					return False
 
 			# Assign Expression's return value to IT 
@@ -464,10 +462,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			pass
 
 		else :
-			printError("Unrecognized Pattern",lineNumber)
+			printError("Unrecognized Pattern of Expression",lineNumber)
 			return False
-	
-		print(line)
+
 		## End
 		if len(printLine) > 0: visibleLines.append(printLine)
 		if len(lineTokens) > 0 : tokens.append(lineTokens)
