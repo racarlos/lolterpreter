@@ -151,7 +151,7 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 				if varDict["IT"][1] != None:
 					smooshedWords += str(varDict["IT"][1])
 				else:
-					printError("IT has a None value",lineNumber) 
+					printError("Cannot concatenate IT has a None value",lineNumber) 
 					return False
 			elif isLiteral(stack[i]):
 				if isLiteral(stack[i]) == "String Literal":
