@@ -97,15 +97,13 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 		ops = smooshHelper(ops)
 
-		smooshLine = []
-		smooshLine.append(('Print Keyword','VISIBLE'))
-		smooshLine.append(('Concatenate KeyWord',kw))
+		lineTokens.append(('Print Keyword','VISIBLE'))
+		lineTokens.append(('Concatenate Keyword',kw))
 		for lexeme in ops:
 			if lexeme == "AN":
-				smooshLine.append(('Operand Separator',lexeme))
+				lineTokens.append(('Operand Separator',lexeme))
 			else:
-				smooshLine.append(('Concatenation Operator',lexeme))
-		lineTokens.append(smooshLine)
+				lineTokens.append(('Concatenation Operator',lexeme))
 		finalAnswer = smooshExpression(ops,lineNumber)
 		varType = getVarType(finalAnswer)
 		varDict['IT'] = [varType,finalAnswer]
