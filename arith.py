@@ -85,11 +85,10 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 			finalAnswer = stack.pop(0)
 			return finalAnswer
 
-		hasError = checkStackExpr(stack,"Arithmetic")
+		hasError = checkStackExpr(stack,"Arithmetic",lineNumber)
 
 		if hasError == True :														  # Exit if there is an error detected 
-			printError("Error in Arithmetic Expression",lineNumber)
-			return False
+			return False															  # return false to exit 
 
 		for i in range(len(stack)-1):									   # Len of Stack Refreshes after every iteration
 			char = stack[i] 

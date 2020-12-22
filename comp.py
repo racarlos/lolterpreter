@@ -66,11 +66,9 @@ def mainComp(compExpr,lineNumber):
 			finalAnswer = stack.pop(0)
 			return finalAnswer
 
-		hasError = checkStackExpr(stack,"Comparison")
+		hasError = checkStackExpr(stack,"Comparison",lineNumber)
 
-		if hasError == True :											  # Exit if there is an error detected 
-			print(stack)
-			printError("Error in Comparison Expression",lineNumber)
+		if hasError == True : return False											  # Exit if there is an error detected 
 
 		for i in range(len(stack)-1):									   # Len of Stack Refreshes after every iteration
 			char = stack[i] 
