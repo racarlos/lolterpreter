@@ -50,6 +50,7 @@ def evaluateCompExpr(operator,operand1,operand2,lineNumber) :
 def mainComp(compExpr,lineNumber):
 	flag = True							# Flag if running should still continue
 	stack = []							# Stack used for computation
+	iters = 0
 										
 	inputLength = len(compExpr)
 
@@ -61,7 +62,13 @@ def mainComp(compExpr,lineNumber):
 	if errVal == False: return errVal															# If it's false, moves on to error
 
 	while flag == True:
-	
+		
+		iters += 1
+
+		if iters > 1000:
+			printError("Invalid Operand in Arithmetic Expression",lineNumber)
+			return False
+
 		if len(stack) == 1:			 # Only final answer should be left 
 			flag = False
 			finalAnswer = stack.pop(0)

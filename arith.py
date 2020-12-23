@@ -68,6 +68,7 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expressions and returns the value or an error 
 	flag = True							# Flag if running should still continue
 	stack = []							# Stack used for computation
+	iters = 0 
 
 	inputLength = len(arithExpr)
 
@@ -80,6 +81,13 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 	if errVal == False: return errVal															# If it's false, moves on to error
 
 	while flag == True:
+		
+		iters += 1
+
+		if iters > 1000:
+			printError("Invalid Operand in Arithmetic Expression",lineNumber)
+			return False
+	
 
 		if len(stack) == 1:	  # Only final answer should be left 
 			flag = False
@@ -115,6 +123,6 @@ def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expre
 					else:
 						pass
 				except:
-					printError("Error in Arithmetic Expression",lineNumber)
+					printError("Invalid Operand in Arithmetic Expression",lineNumber)
 					return False
 	
