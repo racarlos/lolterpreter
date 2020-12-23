@@ -77,7 +77,7 @@ def mainComp(compExpr,lineNumber):
 			if char == "AN":
 				anIndex = i
 				try:
-					print("AN Index: ",anIndex)
+					#print("AN Index: ",anIndex)
 					ops = stack[anIndex-2]				  					 # Operation, 2 steps behind AN
 					op1 = str(stack[anIndex-1])								  # Operand 1, 1 step behind AN
 					op2 = str(stack[anIndex+1])								  # Operand 2, 1 step ahead AN 
