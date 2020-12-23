@@ -189,4 +189,5 @@ clearOutputButton.grid(row=4,padx=8,pady=10)
 
 root.mainloop() 
 
+print(varDict)
 
