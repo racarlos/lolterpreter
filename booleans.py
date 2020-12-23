@@ -44,6 +44,7 @@ def evaluateBoolExpr(operator,operand1,operand2,lineNumber):
 def mainBool(boolExpr,lineNumber):
 	flag = True
 	stack = []							    # Stack used for computation
+	iters = 0 
 										
 	inputLength = len(boolExpr)
 
@@ -53,6 +54,12 @@ def mainBool(boolExpr,lineNumber):
 	
 	#checkExpression(stack,"Boolean")
 	while flag == True:
+
+		iters += 1
+		
+		if iters > 1000:
+			printError("Invalid Operand in Arithmetic Expression",lineNumber)
+			return False
 
 		if len(stack) == 1:                                               # Only final answer should be left 
 			flag = False
