@@ -79,7 +79,7 @@ def isExpression(expr):
 
 def evaluateIfVar(operand):		# Evaluates a possible variable to its value in string format, Used in Operations
 
-	if operand in varDict:					# If the operand is the lsit of variables 
+	if operand in varDict:					# If the operand is the list of variables 
 		varVal = varDict[operand][1]		# Get the value and the type 
 		operand = str(varVal)
 
@@ -176,13 +176,15 @@ def smooshExpression(stack,lineNumber):															# return the concatenated 
 def handleComments(sourceLines):					                        # Replaces the comments with an empty string and returns the edited file
 	newSourceLines= []
 	notEndComment= True
+	errLine = None
 
 	for i in range(len(sourceLines)):
 		if re.match(r'[^\s]OBTW',sourceLines[i]):
-			print("Error in multi-line comment: ",sourceLines[i])
-			exit(1)
+			printError("Error in multi-line comment: ",sourceLines[i])
+			return False
 		elif re.match(r'\s*OBTW',sourceLines[i]):
 			notEndComment= False
+			errLine = i
 			sourceLines[i]=""
 		elif re.match(r'.*BTW',sourceLines[i]):
 			sourceLines[i]= re.sub(r'\s*BTW .*$', "",sourceLines[i])
@@ -190,6 +192,9 @@ def handleComments(sourceLines):					                        # Replaces the comm
 			notEndComment= True
 			sourceLines[i]=""
 		elif not notEndComment:
+			if re.match(kthxbye,sourceLines[i]):
+				printError("Error in multi-line comment TLDR not found",errLine)
+				return False
 			sourceLines[i]=""
 		newSourceLines.append(sourceLines[i])
 
