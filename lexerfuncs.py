@@ -222,6 +222,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			kw = m.group('kw')
 			val = m.group('val')
 
+			if var not in varDict: 
+				printError("Unbound Variable in Assignment Operation",sourceLines.index(line)+1)
+				return False
 			if isVariable(var): lineTokens.append(('Variable Identifier',var))
 
 			if kw == "R": lineTokens.append(('Assignment Keyword', kw))
