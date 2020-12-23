@@ -5,6 +5,11 @@ OBTW
 TLDR
 
 HAI
+
+BTW no comments
+
+OBTW dis is bad TLDR
+
 I HAS A X
 I HAS A Y
 GIMMEH X 

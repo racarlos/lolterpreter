@@ -140,7 +140,7 @@ def checkStackExpr(stack,listFlag,lineNumber):
 def smooshExpression(stack,lineNumber):															# return the concatenated string
 	smooshedWords = ""
 	if stack[-1] == "AN": printError("Incomplete number of items to SMOOSH",lineNumber)			# Hanging AN keyword
-
+	print(stack)
 	for i in range(len(stack)):
 		if i%2 == 1:
 			if stack[i] != "AN": 
