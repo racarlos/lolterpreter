@@ -28,7 +28,7 @@ def manageArithKeywords(line):        		# Make function to convert ops to 1 word
 	return line
 
 def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the Given Arithmetic Expression, Called by Main Arith
-
+	divError = False
 	operand1 = evalArithOperand(operand1,lineNumber)				#handle data type of operand
 	operand2 = evalArithOperand(operand2,lineNumber)
 
@@ -56,13 +56,15 @@ def evaluateArithExpr(operator,operand1,operand2,lineNumber):		# Evaluates the G
 		try:
 			answer = operand1 / operand2
 		except ZeroDivisionError:
+			divError = True
+			return False
+		if divError == True:
 			printError("Zero division error",lineNumber)
 			return False
-
 	else:
 		printError("Error Unrecognized Arithmetic Operand",lineNumber)
 		return False
-
+	
 	return answer		# When conditions are cleared return the final answer 
 
 def mainArith(arithExpr,lineNumber):				# Function for handling arithmetic Expressions and returns the value or an error 
