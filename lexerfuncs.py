@@ -315,7 +315,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Arithmetic Operation Lexical Error",sourceLines.index(line)+1)
+					printError("Invalid Lexeme in Arithmetic Expression",sourceLines.index(line)+1)
 					return False
 			
 			# Assign Expression's return value to IT 
@@ -341,7 +341,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif isVariable(lexeme) and evalVar(lexeme):
 					lineTokens.append(('Variable Identfier',lexeme))
 				else :
-					printError("Comparison Operation Lexical Error",sourceLines.index(line)+1)
+					printError("Invalid Lexeme in Comparison Expression",sourceLines.index(line)+1)
 					return False
 						
 			# Assign Expression's return value to IT 
@@ -369,7 +369,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				elif lexeme == "MKAY":
 					lineTokens.append(('Boolean Delimiter',lexeme))
 				else :
-					printError("Boolean Operation Lexical Error",sourceLines.index(line)+1)
+					printError("Invalid Lexeme in Boolean Expression",sourceLines.index(line)+1)
 					return False
 
 			# Assign Expression's return value to IT 
@@ -387,7 +387,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 
 			ops = smooshHelper(ops)
 
-			lineTokens.append(('Concatenate KeyWord',kw))
+			lineTokens.append(('Concatenate Keyword',kw))
 			for lexeme in ops:
 				if lexeme == "AN":
 					lineTokens.append(('Operand Separator',lexeme))
