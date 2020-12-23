@@ -59,10 +59,9 @@ def executeCode():
 				break
 
 		while not(re.match(kthxbye,sourceLines[-1])):						
+			print(sourceLines[-1])
 			if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
-			else: 
-				printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE
-				print
+			else: break														# breaks out of the loop if it encounters anything else other than KTHXBYE
 
 		if not(re.match(kthxbye,sourceLines[-1])) : 
 			printError("Invalid End of program",len(sourceLines))			# Last Line must be KTHXBYE 

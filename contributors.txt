@@ -1,0 +1,12 @@
+T7L
+Robie Carlos
+John Osias Gandia
+
+re_testcases            //faulty arith,comp,bool,switch
+
+6,7, part of 8
+    6
+        show error catching
+        make lots of files to show error catching separated by comments
+
+        arith,comp,bool,smoosh,gimmeh,visible
