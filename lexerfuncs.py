@@ -29,7 +29,8 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
-				printError("Arithmetic Operation Lexical Error",lineNumber)
+				printError("Invalid Lexeme in Arithmetic Expression",lineNumber)
+				return False
 
 		value = mainArith(arithExpr,lineNumber)
 		if value == False: return False
@@ -53,8 +54,8 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif isVariable(lexeme) and lexeme in varDict:
 				lineTokens.append(('Variable Identfier',lexeme))
 			else :
-				print(lexeme)
-				printError("Comparison Operation Lexical Error",lineNumber)
+				printError("Invalid Lexeme in Comparison Expression",lineNumber)
+				return False
 
 		value = mainComp(compExpr,lineNumber)
 		if value == False: return False
@@ -80,8 +81,8 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 			elif lexeme == "MKAY":
 				lineTokens.append(('End Keyword',lexeme))
 			else :
-				print(lexeme)
-				printError("Boolean Operation Lexical Error",lineNumber)
+				printError("Invalid Lexeme in Boolean Expression",lineNumber)
+				return False
 		
 		value = mainBool(boolExpr,lineNumber)
 		if value == False: return False
@@ -111,8 +112,8 @@ def evaluateExpression(expr,lineNumber,lineTokens):
 
 	# If it doesn't match with any expression print an error 
 	else:
-		print("Invalid Expression: ",expr)
 		printError("Invalid Expression",lineNumber)
+		return False
 
 	if finalAnswer != None:
 		return finalAnswer
@@ -174,8 +175,9 @@ def tokenizer(sourceLines,tokens,visibleLines):
 					exprValue = evaluateExpression(m[4],sourceLines.index(line)+1,lineTokens)	# exprValue[0] = type | exprValue[0] = value 
 					if exprValue == False: return False
 					varDict[m[2]] = exprValue
+		
 				else:
-					printError("Variable Declaration Error",sourceLines.index(line)+1)
+					printError("Invalid LExeme in Variable Declaration",sourceLines.index(line)+1)
 					return False
 					
 			else: 
@@ -240,7 +242,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 				if exprValue == False: return False
 				varDict[var] = exprValue
 			else:
-				printError("Error at assignment statement",sourceLines.index(line)+1)
+				printError("Invalid lexeme at assignment statement",sourceLines.index(line)+1)
 				return False
 				
 		elif re.match(visible,line) and disabled == False :											# If it is a print statement 
