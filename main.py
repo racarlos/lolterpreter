@@ -24,12 +24,16 @@ def executeCode():
 	settings.hasError = False
 	settings.errorLine = 0 
 	settings.errorMessage = " "
+
+	varDict.clear()
+	varDict['IT'] = [None,None]					# Clear Variable Dictionary when getting a new file
+
 	# Reset Contents of Symbol Table and Lexemes 
 	for i in lexView.get_children():
 		lexView.delete(i)
 
-	for i in symbolView.get_children():
-		symbolView.delete(i)
+	for j in symbolView.get_children():
+		symbolView.delete(j)
 
 	# Clear Output
 	clearOutputBox()
@@ -39,7 +43,7 @@ def executeCode():
 	sourceLines = []													# List of Lines
 	visibleLines = []													# Strings to be printed per line in Visible 
 	
-	sourceLines=codeEditor.get("1.0","end-1c")							# Get the input from the code Editor 
+	sourceLines = codeEditor.get("1.0","end-1c")							# Get the input from the code Editor 
 	sourceLines = re.split("\n",sourceLines)							# split into list per newline
 	sourceLines = handleComments(sourceLines)							# Remove Comments here 
 
@@ -79,6 +83,7 @@ def executeCode():
 			hasError = None
 
 		elif value != False:
+			
 			for row in tokens:
 				for element in row:
 					lexView.insert("","end",values=(element[1],element[0]))
