@@ -127,7 +127,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 	disabled = False
 	caseFlag = 1
 	
-	for line in sourceLines:	# tokenize every line in the sourceLines
+	for line in sourceLines:		# tokenize every line in the sourceLines
 
 		lineNumber += 1				# Increment Line Number
 		thisLine = line.split()		# List form of the line 
@@ -402,6 +402,7 @@ def tokenizer(sourceLines,tokens,visibleLines):
 			start = sourceLines.index(line)							 # Index of YA RLY, start of loop 
 
 			inds = findIndex(start,sourceLines)						# Finds the Indices of YA RLY, NO WAI, and OIC
+			if inds == False: return False							# Error In Finding Index 
 			ya = inds[0]
 			no = inds[1]
 			end = inds[2]
