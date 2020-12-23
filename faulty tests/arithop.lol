@@ -17,8 +17,6 @@ HAI
 
   BIGGR OF 3 AN 4 AN                              BTW hanging AN keyword
 
-  QUOSHUNT OF 1 AN 0                              BTW zero division error
-
 KTHXBYE
 
 
