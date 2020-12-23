@@ -5,6 +5,7 @@ def clearCodeEditor():               		# Function for clearing outPut and code E
 	codeEditor.delete('1.0',END)
 
 def clearOutputBox():
+	outPut.configure(state="normal")
 	outPut.delete('1.0',END)
 
 def getFile():
@@ -42,47 +43,55 @@ def executeCode():
 	sourceLines = re.split("\n",sourceLines)							# split into list per newline
 	sourceLines = handleComments(sourceLines)							# Remove Comments here 
 
-	for i in range(len(sourceLines)):									# Checks if the first non comment line is HAI 
-		if re.match(empty,sourceLines[i]):	
-			pass
-		elif re.match(hai,sourceLines[i]):	
-			break
-		else: 
-			printError("Invalid Start of program",sourceLines.index(sourceLines[i]))
-			break
+	if sourceLines == False:
 
-	while not(re.match(kthxbye,sourceLines[-1])):						
-		if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
-		else: printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE
-
-	if not(re.match(kthxbye,sourceLines[-1])) : 
-		printError("Invalid End of program",len(sourceLines))			# Last Line must be KTHXBYE 
-
-	print("Lines: ")
-	for i in range(len(sourceLines)):
-		print(i,"-",sourceLines[i])
-	
-	value = tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line
-	print("Value: ",value)
-
-	if value == False:															# An Error Has Occurred
 		errorString = "Line: " + str(settings.errorLine) + " " + str(settings.errorMessage)
 		outPut.insert(END,errorString)
-		hasError = None
 
-	elif value != False:
-		for row in tokens:
-			for element in row:
-				lexView.insert("","end",values=(element[1],element[0]))
+	else:
+		for i in range(len(sourceLines)):									# Checks if the first non comment line is HAI 
+			if re.match(empty,sourceLines[i]):	
+				pass
+			elif re.match(hai,sourceLines[i]):	
+				break
+			else: 
+				printError("Invalid Start of program",sourceLines.index(sourceLines[i]))
+				break
 
-		for element in varDict:
-			symbolView.insert("","end",values=(element,varDict[element][1]))
-																
-		for element in visibleLines:										# Display Contents of Visiblelines to the output box 
-			final = str(element.pop()) + "\n"
-			outPut.insert(END, final)
+		while not(re.match(kthxbye,sourceLines[-1])):						
+			if re.match(empty,sourceLines[-1]): sourceLines.pop()			# removes whitespaces after the KTHXBYE
+			else: 
+				printError("Invalid End of program",len(sourceLines))		# Last Line must be KTHXBYE
+				print
 
-	outPut.configure(state="disabled")
+		if not(re.match(kthxbye,sourceLines[-1])) : 
+			printError("Invalid End of program",len(sourceLines))			# Last Line must be KTHXBYE 
+
+		print("Lines: ")
+		for i in range(len(sourceLines)):
+			print(i,"-",sourceLines[i])
+		
+		value = tokenizer(sourceLines,tokens,visibleLines)							# Tokenize each line
+		print("Value: ",value)
+
+		if value == False:															# An Error Has Occurred
+			errorString = "Line: " + str(settings.errorLine) + " " + str(settings.errorMessage)
+			outPut.insert(END,errorString)
+			hasError = None
+
+		elif value != False:
+			for row in tokens:
+				for element in row:
+					lexView.insert("","end",values=(element[1],element[0]))
+
+			for element in varDict:
+				symbolView.insert("","end",values=(element,varDict[element][1]))
+																	
+			for element in visibleLines:										# Display Contents of Visiblelines to the output box 
+				final = str(element.pop()) + "\n"
+				outPut.insert(END, final)
+
+		outPut.configure(state="disabled")
 
 
 
